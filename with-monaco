@@ -9,6 +9,14 @@ import { useTheme } from "next-themes"
 import mermaid from "mermaid"
 import Editor, { type Monaco } from "@monaco-editor/react"
 import type { editor } from "monaco-editor"
+import * as monaco from "monaco-editor"
+
+// Add this type declaration at the top of your file
+declare global {
+  interface Window {
+    monaco: typeof import("monaco-editor")
+  }
+}
 
 export default function MermaidEditor() {
   const [code, setCode] = useState<string>(
@@ -26,6 +34,10 @@ export default function MermaidEditor() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const { theme, setTheme } = useTheme()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
+  // Add a new state for error tracking below other state declarations
+  const [error, setError] = useState<{ message: string; line?: number } | null>(null)
+  // Add this to your component near the other refs
+  const renderTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     mermaid.initialize({
@@ -46,12 +58,57 @@ export default function MermaidEditor() {
     return () => document.removeEventListener("wheel", preventScroll)
   }, [code, theme])
 
+  // Replace the renderDiagram function with this improved version that handles errors
   const renderDiagram = async () => {
     try {
+      // Clear any previous errors
+      setError(null)
+
+      // If we have an editor reference, remove any error decorations
+      if (editorRef.current) {
+        editorRef.current.deltaDecorations([], [])
+      }
+
       const { svg } = await mermaid.render("mermaid-diagram", code)
       setSvg(svg)
-    } catch (error) {
-      console.error("Failed to render diagram:", error)
+    } catch (err: any) {
+      console.error("Failed to render diagram:", err)
+
+      // Extract error information
+      const errorMessage = err.message || "Syntax error in diagram"
+      let lineNumber: number | undefined
+
+      // Try to extract line number from the error message
+      // Common format in Mermaid errors: "Parse error on line X:"
+      const lineMatch = errorMessage.match(/line (\d+)/i)
+      if (lineMatch && lineMatch[1]) {
+        lineNumber = Number.parseInt(lineMatch[1], 10)
+      }
+
+      setError({ message: errorMessage, line: lineNumber })
+
+      // Highlight the error line in the editor if we have a line number and editor reference
+      if (lineNumber && editorRef.current) {
+        const decorations = [
+          {
+            range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+            options: {
+              isWholeLine: true,
+              className: "bg-red-100 dark:bg-red-900/30",
+              glyphMarginClassName: "bg-red-500",
+              glyphMarginHoverMessage: { value: errorMessage },
+            },
+          },
+        ]
+
+        editorRef.current.deltaDecorations([], decorations)
+
+        // Jump to the error line
+        editorRef.current.revealLineInCenter(lineNumber)
+      }
+
+      // Still render a fallback diagram or the last valid diagram
+      // This ensures the preview area doesn't go blank on errors
     }
   }
 
@@ -104,9 +161,12 @@ export default function MermaidEditor() {
     another task     :24d`,
   }
 
-  // Handle Monaco Editor initialization
+  // Update the handleEditorDidMount function to add error indicator functionality
   const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
     editorRef.current = editor
+
+    // Store monaco globally for use in decorations
+    window.monaco = monaco
 
     // Define a simple language for Mermaid
     monaco.languages.register({ id: "mermaid" })
@@ -164,6 +224,15 @@ export default function MermaidEditor() {
           ],
         }
       },
+    })
+
+    // Add onChange handler to clear errors when editing
+    editor.onDidChangeModelContent(() => {
+      // Delay the rendering to avoid too many renders while typing
+      clearTimeout(renderTimeout.current)
+      renderTimeout.current = setTimeout(() => {
+        renderDiagram()
+      }, 500)
     })
   }
 
@@ -232,6 +301,7 @@ export default function MermaidEditor() {
                   wordWrap: "on",
                   tabSize: 2,
                   automaticLayout: true,
+                  glyphMargin: true, // Enable glyph margin for error indicators
                   scrollbar: {
                     vertical: "visible",
                     horizontal: "visible",
@@ -240,6 +310,45 @@ export default function MermaidEditor() {
                 onMount={handleEditorDidMount}
               />
             </div>
+            {error && (
+              <div className="mt-2 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md">
+                <div className="flex items-start">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-red-500 mr-2 mt-0.5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div>
+                    <h4 className="text-sm font-medium text-red-800 dark:text-red-200">Syntax Error</h4>
+                    <p className="text-xs text-red-700 dark:text-red-300 mt-1">{error.message}</p>
+                    {error.line && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
+                        Line: {error.line}{" "}
+                        <button
+                          className="underline ml-1 focus:outline-none"
+                          onClick={() => {
+                            if (editorRef.current && error.line) {
+                              editorRef.current.focus()
+                              editorRef.current.revealLineInCenter(error.line)
+                              editorRef.current.setPosition({ lineNumber: error.line, column: 1 })
+                            }
+                          }}
+                        >
+                          Jump to line
+                        </button>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </Card>
         </div>
 
