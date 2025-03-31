@@ -1,1 +1,1 @@
-# Mermaid-editor
+# Notes repository 
