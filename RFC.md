@@ -17,6 +17,21 @@ Interactions are hard to compose or coordinate. There is no clear notion of UI m
 Most rendering frameworks tie state to rendering tightly, limiting performance and portability.
 
 
+What We Like (and Want to Keep)
+
+While this RFC proposes moving beyond current paradigms, there are several powerful ideas from the current ecosystem worth preserving:
+
+Composition: Being able to build features by combining smaller pieces.
+
+JSX: A powerful and expressive syntax for UI declaration.
+
+Declarative syntax: Declaring "what" should happen rather than imperatively specifying "how".
+
+Hooks-like systems: Encapsulating logic and lifecycle into composable, reusable functions — but without the gotchas and timing issues of useEffect.
+
+
+The goal is to carry forward these ergonomics and strengths while removing the architectural constraints.
+
 Goals
 
 Decouple behavior, state, and rendering.
