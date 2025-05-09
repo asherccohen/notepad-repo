@@ -1,3 +1,8 @@
+npm install puppeteer axios tough-cookie axios-cookiejar-support cheerio commander
+npm install -D typescript ts-node @types/node @types/cheerio
+
+-----
+
 import puppeteer from 'puppeteer';
 import { CookieJar } from 'tough-cookie';
 import { wrapper } from 'axios-cookiejar-support';
