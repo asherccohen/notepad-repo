@@ -16,6 +16,172 @@ Cloud deployment (Docker + Kubernetes)
 
 Part 1 – Microsoft Entra ID Authentication with NextAuth.js
 
+To authenticate users or backend services using Microsoft Entra ID (formerly Azure AD), you'll need to register an application and retrieve credentials like client_id, client_secret, and optionally configure scopes and redirect URIs. Here's a step-by-step guide to do this properly in 2024 using the latest Microsoft Entra portal:
+
+
+---
+
+1. Sign in to Microsoft Entra Admin Center
+
+Go to: https://entra.microsoft.com
+
+Use a Microsoft 365 work/school account with admin privileges (or developer tenant).
+
+
+---
+
+2. Register a New App
+
+1. Navigate to "Applications" → "App registrations"
+
+
+2. Click "New registration"
+
+
+
+Fill in:
+
+Name: e.g., NextAuth Entra App
+
+Supported account types:
+
+Choose "Accounts in this organizational directory only" for internal use
+
+Choose "Multitenant" if needed across tenants
+
+
+Redirect URI (optional for now):
+
+If using NextAuth, add:
+
+http://localhost:3000/api/auth/callback/entra-id
+
+Replace localhost with your prod domain later.
+
+
+
+Click "Register"
+
+
+---
+
+3. Get Your Credentials
+
+Once registered, you’ll see:
+
+Application (client) ID → use as AZURE_CLIENT_ID
+
+Directory (tenant) ID → needed only for some flows, like client credentials
+
+Object ID → ignore unless doing advanced role access
+
+
+
+---
+
+4. Create a Client Secret (for server-side use)
+
+1. In the App’s sidebar, go to Certificates & secrets
+
+
+2. Under Client secrets, click "New client secret"
+
+
+3. Add a name like prod-secret, set expiry (12 months is fine)
+
+
+4. Save it — you’ll only see the Value once → use this as AZURE_CLIENT_SECRET
+
+
+
+
+---
+
+5. Configure Redirect URIs
+
+For web-based logins (like next-auth):
+
+1. Go to "Authentication"
+
+
+2. Under Web, click "Add a platform"
+
+
+3. Choose Web, and input:
+
+http://localhost:3000/api/auth/callback/entra-id
+
+Or production:
+
+https://your-domain.com/api/auth/callback/entra-id
+
+
+
+Check:
+
+Access tokens (enabled)
+
+ID tokens (enabled)
+
+
+Click Save
+
+
+---
+
+6. (Optional) Expose API or Add Scopes
+
+If your backend or Azure OpenAI requires custom scopes:
+
+Go to "Expose an API"
+
+Add scopes like api://<client_id>/.default
+
+
+
+---
+
+7. (Optional) Assign API Permissions
+
+For service-to-service calls or admin consent:
+
+1. Go to API permissions
+
+
+2. Click "Add a permission"
+
+
+3. Choose:
+
+Microsoft Graph (for user info)
+
+Custom APIs if you registered another backend app
+
+
+
+4. Click "Grant admin consent" if needed for all users
+
+
+
+
+---
+
+Summary of Variables for .env
+
+AZURE_CLIENT_ID=<from portal>
+AZURE_CLIENT_SECRET=<from Certificates & Secrets>
+AZURE_TENANT_ID=<optional, needed for client credential flow>
+AZURE_ISSUER=https://login.microsoftonline.com/<tenant_id>/v2.0
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=<your secret>
+
+
+---
+
+Let me know if you're using next-auth, @azure/identity, or @ai-sdk/azure, and I can tailor examples for each with those credentials.
+
+
+
 Provider
 
 Use next-auth/providers/microsoft-entra-id. It replaces the old azure-ad provider.
