@@ -327,3 +327,203 @@ A: There is none. You must explicitly configure one. If no provider is configure
 
 Let me know if you want this formatted as markdown or turned into a Confluence wiki page.
 
+----
+
+Yes, you can create a login flow with NextAuth + Entra ID that skips your own login screen and immediately redirects to the Microsoft SSO login — just like internal tools in enterprise environments.
+
+Here's how it works:
+
+Microsoft Entra ID (formerly Azure AD) supports SSO via redirect. If the user is already authenticated with Microsoft (e.g. via Microsoft 365), Entra ID will auto-sign them in, and they’ll land back on your app without needing to interact.
+
+
+---
+
+To enable this in NextAuth.js (App Router)
+
+1. Use the Microsoft Entra ID Provider
+
+
+
+// app/api/auth/[...nextauth]/route.ts
+import NextAuth from 'next-auth';
+import EntraIDProvider from 'next-auth/providers/microsoft-entra-id';
+
+const handler = NextAuth({
+  providers: [
+    EntraIDProvider({
+      clientId: process.env.AZURE_CLIENT_ID!,
+      clientSecret: process.env.AZURE_CLIENT_SECRET!,
+      issuer: process.env.AZURE_ISSUER!, // e.g. https://login.microsoftonline.com/{tenant_id}/v2.0
+    }),
+  ],
+  session: {
+    strategy: 'jwt',
+  },
+});
+
+export { handler as GET, handler as POST };
+
+2. Redirect to login immediately if user is not authenticated
+
+
+
+In your middleware:
+
+// middleware.ts
+import { auth } from 'next-auth';
+import { NextResponse } from 'next/server';
+
+export async function middleware(req) {
+  const session = await auth();
+  if (!session) {
+    const callbackUrl = req.nextUrl.href;
+    return NextResponse.redirect(
+      new URL(`/api/auth/signin/entra-id?callbackUrl=${encodeURIComponent(callbackUrl)}`, req.url),
+    );
+  }
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*'], // protect routes
+};
+
+3. Optional: Force login via Microsoft silently
+
+
+
+To get SSO without interaction:
+
+Make sure prompt=none is respected.
+
+Microsoft login behavior depends on:
+
+Whether the user is already signed in to Microsoft
+
+Whether your domain is federated
+
+The tenant’s policy
+
+
+
+You can customize this by editing the authorization URL:
+
+EntraIDProvider({
+  // ...
+  authorization: {
+    params: {
+      prompt: 'none', // or 'login' if you want a fresh login every time
+    },
+  },
+});
+
+
+---
+
+Summary
+
+Yes, you can skip your own login page and redirect straight to Microsoft login.
+
+If users are already logged into Microsoft, SSO will auto-sign them in — no interaction.
+
+You still need to trigger the sign-in explicitly via a redirect — use middleware or layout checks to do that.
+
+
+Let me know if you want a client-only version (e.g. for a login button in a React component).
+
+------
+Great — if you're using Drizzle and want to monitor users, then yes, you should persist users in your own Postgres DB. This gives you full control over user tracking, audit, access control, etc.
+
+Here’s exactly how to wire it up.
+
+
+---
+
+1. Add Drizzle Tables for NextAuth
+
+NextAuth doesn't have official Drizzle support yet, so you’ll define your own schema. You can use this basic structure (can be extended later):
+
+// schema/auth.ts
+import { pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  name: text('name'),
+  email: text('email').notNull().unique(),
+  emailVerified: timestamp('email_verified', { mode: 'date' }),
+  image: text('image'),
+});
+
+export const accounts = pgTable('accounts', {
+  userId: varchar('user_id', { length: 255 }).notNull(),
+  type: text('type').notNull(),
+  provider: text('provider').notNull(),
+  providerAccountId: text('provider_account_id').notNull(),
+  accessToken: text('access_token'),
+  tokenType: text('token_type'),
+  idToken: text('id_token'),
+});
+
+You can add sessions and verification tokens if you want to use a DB session strategy too.
+
+
+---
+
+2. Add a Custom Adapter
+
+You need a custom Drizzle adapter. Since there's no official one yet, use this community adapter or write a thin one yourself. A solid open-source one:
+drizzle-next-auth
+Or I can help you write a minimal one.
+
+Then wire it into your NextAuth config:
+
+import { DrizzleAdapter } from './your-drizzle-adapter';
+import { db } from '@/lib/drizzle'; // your drizzle client
+
+const handler = NextAuth({
+  adapter: DrizzleAdapter(db),
+  providers: [
+    EntraIDProvider({
+      clientId: process.env.AZURE_CLIENT_ID!,
+      clientSecret: process.env.AZURE_CLIENT_SECRET!,
+      issuer: process.env.AZURE_ISSUER!,
+    }),
+  ],
+});
+
+
+---
+
+3. Monitor Users
+
+Now you can:
+
+Query the users table for audit, dashboards, admin panels
+
+Track accounts to know where users logged in from
+
+Optionally, relate users to teams, roles, etc.
+
+
+You’ll also have access to their Microsoft profile data (name, email, avatar) at login.
+
+
+---
+
+TL;DR
+
+Use Drizzle with a custom adapter
+
+Define users and accounts tables
+
+Add the adapter to NextAuth config
+
+Microsoft Entra ID provider fills these on login
+
+You can now fully monitor and extend user activity
+
+
+Let me know if you want me to generate the full Drizzle adapter for NextAuth.
+
+
+
