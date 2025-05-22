@@ -25,3 +25,23 @@ export default {
     };
   },
 };
+
+// eslint.config.js
+
+import noRenderPrefix from './no-render-prefix.js';
+
+export default [
+  {
+    files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
+    plugins: {
+      custom: {
+        rules: {
+          'no-render-prefix': noRenderPrefix,
+        },
+      },
+    },
+    rules: {
+      'custom/no-render-prefix': 'error',
+    },
+  },
+];
