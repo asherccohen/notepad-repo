@@ -75,3 +75,57 @@ Enforce strict types. No any.
 
 
 This approach lets you share code without pretending you're writing a general-purpose library. It puts the responsibility of compatibility and bundling where it belongs: in the app repo that consumes it.
+
+---
+
+✅ Recommended Setup for Distributing Raw TypeScript Source
+
+If your intention is to share only the TypeScript source code and let consumers handle compilation, here's how you can structure your project:
+
+📁 Folder Structure
+
+sum-lib/
+├── package.json
+├── tsconfig.json
+└── src/
+    └── index.ts
+
+📄 src/index.ts
+
+export function sum(numbers: number[]): number {
+  return numbers.reduce((acc, curr) => acc + curr, 0);
+}
+
+📄 tsconfig.json
+
+You can omit the outDir and build configurations: 
+
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "strict": true
+  },
+  "include": ["src"]
+}
+
+📄 package.json
+
+{
+  "name": "sum-lib",
+  "version": "1.0.0",
+  "description": "A simple TypeScript library to sum numbers.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": ["src"],
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+
+main and types: Point directly to the TypeScript source file.
+
+files: Ensures only the src directory is included in the published package.
+
+No build script or outDir: Since there's no compilation or bundling, these are unnecessary. 
+
