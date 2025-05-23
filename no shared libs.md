@@ -118,7 +118,7 @@ You can omit the outDir and build configurations:
   "main": "src/index.ts",
   "types": "src/index.ts",
   "files": ["src"],
-  "devDependencies": {
+  "peerDependencies": {
     "typescript": "^5.0.0"
   }
 }
