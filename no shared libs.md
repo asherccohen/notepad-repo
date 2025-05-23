@@ -1,9 +1,8 @@
-Here's a concise, no-BS manifesto-style internal doc you can use:
+Stop Publishing Internal npm Packages (the wrong way)
 
+Let’s be blunt: internal npm packages are usually a mess.
 
----
-
-Stop Publishing Internal npm Packages
+We don’t hate code reuse. We hate how it’s being done. You’re shipping brittle packages, half-bundled, under-typed, and over-promised. That’s not scalable. That’s not maintainable. That’s not even useful.
 
 Let’s be clear: you are not a library maintainer. And that’s okay—because that’s not your job.
 
@@ -58,7 +57,21 @@ Treat all "shared code" as part of the product, not as a library
 Stop creating tech debt under the illusion of reuse. Build for maintainability, not vanity.
 
 
----
+The Fix: Share Source, Not Bundles
 
-Let me know if you want this rewritten with examples from your current codebase or a softer tone for leadership.
+Here’s a better pattern:
 
+Don’t publish to the npm registry. Keep it in your git monorepo or workspace.
+
+If you must package it, publish source code only: raw .ts files, no build step, no bundler, no transpilation.
+
+Consumers handle their own bundling, TS config, and tooling.
+
+Use exports to expose exactly what’s meant to be used.
+
+Keep the scope minimal—functions, types, and utilities. Not runtime code or framework wiring.
+
+Enforce strict types. No any.
+
+
+This approach lets you share code without pretending you're writing a general-purpose library. It puts the responsibility of compatibility and bundling where it belongs: in the app repo that consumes it.
