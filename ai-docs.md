@@ -2,8 +2,51 @@ Damn, I really want to make a "UX Patterns For AI Applications" course
 
 All the hard stuff like stream resuming, generative UI, properly streaming markdown, editable plans, showing LLM progress
 
-Right, let's do this! First gather all details you can about this from blog posts and documentation of tools like  the ai sdk by vercel and other abstractions, even agenti ones.
-Then draft all the information into coherent text, useful to write proper documentation for my confluence page
+## TL;DR: Key UX Patterns for AI Applications
+
+- **Streaming Responses**
+  - Stream AI-generated content incrementally to improve perceived speed and engagement.
+  - Use tools like Vercel AI SDK’s `streamText` for unified streaming APIs.
+  - Handle partial content, network interruptions, and errors gracefully.
+
+- **Client-Side Stream Management**
+  - Use hooks like `useChat` and `useCompletion` for reactive, real-time UI updates.
+  - Manage message history, loading states, and errors declaratively.
+  - Employ placeholder content and smooth transitions to avoid layout shifts.
+
+- **Generative User Interfaces**
+  - Dynamically generate UI components based on AI outputs and user context.
+  - Define secure function calling and component schemas to bridge AI and frontend.
+  - Maintain brand consistency and accessibility by integrating with design systems.
+
+- **Stream Resumption & Reliability**
+  - Implement persistent stream recovery to resume interrupted AI responses.
+  - Use Redis-backed pubsub mechanisms (e.g., resumable-stream) for state persistence.
+  - Support multi-client synchronization with secure access controls.
+
+- **Streaming Formatted Content (Markdown)**
+  - Address challenges of incremental Markdown rendering with streaming-aware parsers.
+  - Use progressive enhancement: render plain text first, then apply formatting smoothly.
+  - Handle nested elements and code blocks with buffering and context-aware parsing.
+
+- **Progress Indication & User Feedback**
+  - Provide multi-stage, dynamic progress indicators reflecting AI processing phases.
+  - Combine quantitative progress bars with qualitative status messages.
+  - Adapt feedback contextually based on task type and user interaction history.
+
+- **Framework & Provider Integration**
+  - Use framework-agnostic SDKs (React, Next.js, Vue, Svelte, Node.js) for broad compatibility.
+  - Abstract AI providers to enable easy switching (OpenAI, Anthropic, Google, Mistral, etc.).
+  - Leverage hooks, utilities, and components tailored to each framework.
+
+- **Development Workflow & Tooling**
+  - Integrate AI-powered coding assistants using up-to-date documentation formats (e.g., llms.txt).
+  - Utilize starter templates and boilerplate kits to accelerate AI app development.
+  - Engage with community-driven resources for rapid iteration and knowledge sharing.
+
+This concise overview highlights essential UX design and technical patterns critical for building robust, engaging, and adaptive AI applications.
+
+
 
 # UX Patterns for AI Applications: A Comprehensive Guide to Modern AI User Experience Design
 
