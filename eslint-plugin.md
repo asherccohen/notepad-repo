@@ -287,3 +287,191 @@ Objective: Permit the definition of extended state (contextual state) as objects
 Implementation:
 
 This rule is more about allowing a pattern rather than enforcing or disallowing it. Therefore, no specific ESLint rule is necessary unless you want to enforce the use of objects for extended state. If so, you can create a rule similar to the first one but in reverse, warning when primitive types are used for extended state.
+
+// no undefined in string
+Here's the updated ESLint rule with full support for fix suggestions, so it:
+
+Detects possibly undefined | null values in string interpolation and concatenation
+
+Suggests a safe fallback using ?? 'unknown'
+
+Works inside template literals and + string concatenation
+
+Allows ignoring specific function calls like console.log(...)
+
+
+
+---
+
+✅ Final no-unsafe-interpolation.ts Rule (with suggestions)
+
+import { TSESTree, ESLintUtils } from '@typescript-eslint/utils';
+import ts from 'typescript';
+
+type Options = [{
+  ignoreFunctions?: string[];
+}];
+
+type MessageIds = 'possiblyUndefinedInString';
+
+const createRule = ESLintUtils.RuleCreator(() => 'https://your-docs/rules/no-unsafe-interpolation');
+
+export default createRule<Options, MessageIds>({
+  name: 'no-unsafe-interpolation',
+  meta: {
+    type: 'problem',
+    docs: {
+      description: 'Disallow possibly undefined or null variables in template literals or string concatenation',
+      recommended: 'warn',
+    },
+    schema: [{
+      type: 'object',
+      properties: {
+        ignoreFunctions: {
+          type: 'array',
+          items: { type: 'string' },
+          default: [],
+        },
+      },
+    }],
+    messages: {
+      possiblyUndefinedInString: 'Variable `{{name}}` might be undefined or null in a string context.',
+    },
+    hasSuggestions: true,
+  },
+  defaultOptions: [{}],
+  create(context, [options]) {
+    const parserServices = ESLintUtils.getParserServices(context);
+    const typeChecker = parserServices.program.getTypeChecker();
+    const ignoredFunctions = new Set(options.ignoreFunctions || []);
+
+    function isPossiblyNullOrUndefined(type: ts.Type): boolean {
+      if (type.getFlags() & (ts.TypeFlags.Null | ts.TypeFlags.Undefined)) return true;
+      if (type.isUnion()) {
+        return type.types.some(t => t.getFlags() & (ts.TypeFlags.Null | ts.TypeFlags.Undefined));
+      }
+      return false;
+    }
+
+    function isInIgnoredFunction(node: TSESTree.Node): boolean {
+      let current: TSESTree.Node | undefined = node;
+      while (current) {
+        if (
+          current.type === 'CallExpression' &&
+          current.callee.type === 'MemberExpression' &&
+          current.callee.object.type === 'Identifier' &&
+          current.callee.property.type === 'Identifier'
+        ) {
+          const fullName = `${current.callee.object.name}.${current.callee.property.name}`;
+          if (ignoredFunctions.has(fullName)) return true;
+        }
+        current = current.parent;
+      }
+      return false;
+    }
+
+    function checkExpression(expr: TSESTree.Expression) {
+      if (isInIgnoredFunction(expr)) return;
+
+      const tsNode = parserServices.esTreeNodeToTSNodeMap.get(expr);
+      const type = typeChecker.getTypeAtLocation(tsNode);
+
+      if (!isPossiblyNullOrUndefined(type)) return;
+
+      const sourceCode = context.getSourceCode();
+      const originalText = sourceCode.getText(expr);
+
+      context.report({
+        node: expr,
+        messageId: 'possiblyUndefinedInString',
+        data: { name: originalText },
+        suggest: [
+          {
+            desc: `Wrap with fallback: \`${originalText} ?? 'unknown'\``,
+            fix(fixer) {
+              return fixer.replaceText(expr, `${originalText} ?? 'unknown'`);
+            },
+          },
+        ],
+      });
+    }
+
+    return {
+      TemplateLiteral(node) {
+        for (const expr of node.expressions) {
+          checkExpression(expr);
+        }
+      },
+      BinaryExpression(node) {
+        if (
+          node.operator === '+' &&
+          (node.left.type === 'Literal' || node.right.type === 'Literal')
+        ) {
+          checkExpression(node.left);
+          checkExpression(node.right);
+        }
+      },
+    };
+  },
+});
+
+
+---
+
+👀 Example in Action
+
+❌ Code That Triggers Warning
+
+let email: string | undefined;
+const message = `Your email is ${email}`;
+
+// ⚠️ Warning:
+// Variable `email` might be undefined or null in a string context.
+// 💡 Suggestion: email ?? 'unknown'
+
+✅ After Accepting Suggestion
+
+const message = `Your email is ${email ?? 'unknown'}`;
+
+
+---
+
+🧩 ESLint Config Usage
+
+.eslintrc.js
+
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  plugins: ['your-plugin'],
+  rules: {
+    'your-plugin/no-unsafe-interpolation': ['warn', {
+      ignoreFunctions: ['console.log', 'logger.info'],
+    }],
+  },
+};
+
+
+---
+
+✅ Setup Checklist
+
+To make this rule work in your project:
+
+1. Ensure you're using @typescript-eslint/parser in ESLint config
+
+
+2. Add this rule to a local plugin or use eslint-plugin-local
+
+
+3. Add the rule to .eslintrc.js
+
+
+4. Run ESLint with --fix or use an editor that supports in-place suggestions
+
+
+
+
+---
+
+Want me to help generate a plugin boilerplate (eslint-plugin-myteam) or show how to load this rule locally in a monorepo?
+
