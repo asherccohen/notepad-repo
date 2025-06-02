@@ -371,30 +371,32 @@ export default createRule<Options, MessageIds>({
     }
 
     function checkExpression(expr: TSESTree.Expression) {
-      if (isInIgnoredFunction(expr)) return;
+  if (isInIgnoredFunction(expr)) return;
 
-      const tsNode = parserServices.esTreeNodeToTSNodeMap.get(expr);
-      const type = typeChecker.getTypeAtLocation(tsNode);
+  if (expr.type === 'Literal') return;
 
-      if (!isPossiblyNullOrUndefined(type)) return;
+  const tsNode = parserServices.esTreeNodeToTSNodeMap.get(expr);
+  const type = typeChecker.getApparentType(typeChecker.getTypeAtLocation(tsNode));
 
-      const sourceCode = context.getSourceCode();
-      const originalText = sourceCode.getText(expr);
+  if (!isPossiblyNullOrUndefined(type)) return;
 
-      context.report({
-        node: expr,
-        messageId: 'possiblyUndefinedInString',
-        data: { name: originalText },
-        suggest: [
-          {
-            desc: `Wrap with fallback: \`${originalText} ?? 'unknown'\``,
-            fix(fixer) {
-              return fixer.replaceText(expr, `${originalText} ?? 'unknown'`);
-            },
-          },
-        ],
-      });
-    }
+  const sourceCode = context.getSourceCode();
+  const originalText = sourceCode.getText(expr);
+
+  context.report({
+    node: expr,
+    messageId: 'possiblyUndefinedInString',
+    data: { name: originalText },
+    suggest: [
+      {
+        desc: `Wrap with fallback: \`${originalText} ?? 'unknown'\``,
+        fix(fixer) {
+          return fixer.replaceText(expr, `${originalText} ?? 'unknown'`);
+        },
+      },
+    ],
+  });
+}
 
     return {
       TemplateLiteral(node) {
