@@ -477,3 +477,144 @@ To make this rule work in your project:
 
 Want me to help generate a plugin boilerplate (eslint-plugin-myteam) or show how to load this rule locally in a monorepo?
 
+
+```
+import { TSESTree, ESLintUtils } from '@typescript-eslint/utils';
+import ts from 'typescript';
+
+type Options = [{
+  ignoreFunctions?: string[];
+}];
+
+type MessageIds = 'possiblyUndefinedInString';
+
+const createRule = ESLintUtils.RuleCreator(() => 'https://your-docs/rules/no-unsafe-interpolation');
+
+export default createRule<Options, MessageIds>({
+  name: 'no-unsafe-interpolation',
+  meta: {
+    type: 'problem',
+    docs: {
+      description: 'Disallow possibly undefined or null variables in template literals or string concatenation',
+      recommended: 'warn',
+    },
+    schema: [{
+      type: 'object',
+      properties: {
+        ignoreFunctions: {
+          type: 'array',
+          items: { type: 'string' },
+          default: [],
+        },
+      },
+    }],
+    messages: {
+      possiblyUndefinedInString: 'Variable `{{name}}` might be undefined or null in a string context.',
+    },
+    hasSuggestions: true,
+  },
+  defaultOptions: [{}],
+  create(context, [options]) {
+    const parserServices = ESLintUtils.getParserServices(context);
+    const typeChecker = parserServices.program.getTypeChecker();
+    const ignoredFunctions = new Set(options.ignoreFunctions || []);
+    const sourceCode = context.getSourceCode();
+
+    function isPossiblyNullOrUndefined(type: ts.Type): boolean {
+      const flags = ts.TypeFlags.Null | ts.TypeFlags.Undefined;
+      if (type.getFlags() & flags) return true;
+      if (type.isUnion()) {
+        return type.types.some(t => t.getFlags() & flags);
+      }
+      return false;
+    }
+
+    function isInIgnoredFunction(node: TSESTree.Node): boolean {
+      let current: TSESTree.Node | undefined = node;
+      while (current) {
+        if (
+          current.type === 'CallExpression' &&
+          current.callee.type === 'MemberExpression' &&
+          current.callee.object.type === 'Identifier' &&
+          current.callee.property.type === 'Identifier'
+        ) {
+          const fullName = `${current.callee.object.name}.${current.callee.property.name}`;
+          if (ignoredFunctions.has(fullName)) return true;
+        }
+        current = current.parent;
+      }
+      return false;
+    }
+
+    function isConstLiteral(identifier: TSESTree.Identifier): boolean {
+      const scope = context.getScope();
+      const variable = scope.variables.find(v => v.name === identifier.name);
+      if (!variable || variable.defs.length === 0) return false;
+      const def = variable.defs[0];
+      return def.node.type === 'VariableDeclarator' &&
+        def.parent?.kind === 'const' &&
+        def.node.init?.type === 'Literal';
+    }
+
+    function checkExpression(expr: TSESTree.Expression) {
+      if (isInIgnoredFunction(expr)) return;
+      if (expr.type === 'Literal') return;
+      if (expr.type === 'Identifier' && isConstLiteral(expr)) return;
+
+      // Ignore fallback expressions: ??, ||, or ternary
+      if (
+        expr.type === 'LogicalExpression' &&
+        (expr.operator === '??' || expr.operator === '||')
+      ) {
+        return;
+      }
+
+      if (
+        expr.type === 'ConditionalExpression' &&
+        expr.alternate.type === 'Literal'
+      ) {
+        return;
+      }
+
+      const tsNode = parserServices.esTreeNodeToTSNodeMap.get(expr);
+      const type = typeChecker.getApparentType(typeChecker.getTypeAtLocation(tsNode));
+
+      if (!isPossiblyNullOrUndefined(type)) return;
+
+      const originalText = sourceCode.getText(expr);
+
+      context.report({
+        node: expr,
+        messageId: 'possiblyUndefinedInString',
+        data: { name: originalText },
+        suggest: [
+          {
+            desc: `Wrap with fallback: \`${originalText} ?? 'unknown'\``,
+            fix(fixer) {
+              return fixer.replaceText(expr, `${originalText} ?? 'unknown'`);
+            },
+          },
+        ],
+      });
+    }
+
+    return {
+      TemplateLiteral(node) {
+        for (const expr of node.expressions) {
+          checkExpression(expr);
+        }
+      },
+      BinaryExpression(node) {
+        if (
+          node.operator === '+' &&
+          (node.left.type === 'Literal' || node.right.type === 'Literal')
+        ) {
+          checkExpression(node.left);
+          checkExpression(node.right);
+        }
+      },
+    };
+  },
+});
+```
+
