@@ -514,9 +514,10 @@ export default createRule<Options, MessageIds>({
     hasSuggestions: true,
   },
   defaultOptions: [{}],
-  create(context, [options]) {
+  create(context) {
     const parserServices = ESLintUtils.getParserServices(context);
     const typeChecker = parserServices.program.getTypeChecker();
+    const options = context.options?.[0] || {};
     const ignoredFunctions = new Set(options.ignoreFunctions || []);
     const sourceCode = context.getSourceCode();
 
@@ -546,39 +547,46 @@ export default createRule<Options, MessageIds>({
       return false;
     }
 
-    function isConstLiteral(identifier: TSESTree.Identifier): boolean {
-      const scope = context.getScope();
-      const variable = scope.variables.find(v => v.name === identifier.name);
-      if (!variable || variable.defs.length === 0) return false;
-      const def = variable.defs[0];
-      return def.node.type === 'VariableDeclarator' &&
-        def.parent?.kind === 'const' &&
-        def.node.init?.type === 'Literal';
+    function isConstAndLiteral(tsNode: ts.Node): boolean {
+      if (!ts.isIdentifier(tsNode)) return false;
+      const symbol = typeChecker.getSymbolAtLocation(tsNode);
+      if (!symbol || !symbol.declarations?.length) return false;
+
+      for (const decl of symbol.declarations) {
+        if (
+          ts.isVariableDeclaration(decl) &&
+          decl.initializer &&
+          (ts.isStringLiteral(decl.initializer) || ts.isNumericLiteral(decl.initializer)) &&
+          decl.parent &&
+          ts.isVariableDeclarationList(decl.parent) &&
+          (decl.parent.flags & ts.NodeFlags.Const)
+        ) {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     function checkExpression(expr: TSESTree.Expression) {
       if (isInIgnoredFunction(expr)) return;
       if (expr.type === 'Literal') return;
-      if (expr.type === 'Identifier' && isConstLiteral(expr)) return;
 
-      // Ignore fallback expressions: ??, ||, or ternary
+      const tsNode = parserServices.esTreeNodeToTSNodeMap.get(expr);
+      if (isConstAndLiteral(tsNode)) return;
+
+      // Ignore fallback expressions: ??, ||, or ternary with fallback
       if (
         expr.type === 'LogicalExpression' &&
         (expr.operator === '??' || expr.operator === '||')
-      ) {
-        return;
-      }
+      ) return;
 
       if (
         expr.type === 'ConditionalExpression' &&
         expr.alternate.type === 'Literal'
-      ) {
-        return;
-      }
+      ) return;
 
-      const tsNode = parserServices.esTreeNodeToTSNodeMap.get(expr);
       const type = typeChecker.getApparentType(typeChecker.getTypeAtLocation(tsNode));
-
       if (!isPossiblyNullOrUndefined(type)) return;
 
       const originalText = sourceCode.getText(expr);
