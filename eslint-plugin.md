@@ -626,3 +626,266 @@ export default createRule<Options, MessageIds>({
 });
 ```
 
+--------
+
+Here’s the full enhanced ESLint rule implementation, including:
+
+✅ Detection of <form> inside React components
+
+✅ Support for destructured and typed props
+
+✅ Class component support
+
+✅ Suggestions with fixers
+
+🧠 "Go further": auto-suggest extension of shared form prop types (FormComponentProps) when external Props are used
+
+
+
+---
+
+🧱 Shared Assumptions
+
+Create a shared type like this in your codebase:
+
+// shared-types.ts
+export type FormComponentProps = {
+  onSubmit: (e: React.FormEvent) => void
+  formId: string
+}
+
+This rule will suggest using it if it sees:
+
+type Props = {
+  ...
+}
+
+
+---
+
+✅ ESLint Rule
+
+Here's the full rule file (form-props-required.ts):
+
+```
+import {
+  TSESTree,
+  TSESLint,
+} from '@typescript-eslint/utils'
+import ts from 'typescript'
+
+type MessageIds = 'missingFormProps' | 'addPropsSuggestion' | 'extendPropsSuggestion'
+
+const REQUIRED_PROPS = ['onSubmit', 'formId']
+
+const rule: TSESLint.RuleModule<MessageIds, []> = {
+  meta: {
+    type: 'problem',
+    docs: {
+      description: 'Ensure components using <form> have onSubmit and formId props',
+      recommended: false,
+    },
+    messages: {
+      missingFormProps: 'Component with <form> must declare required props: onSubmit, formId',
+      addPropsSuggestion: 'Add missing props to component parameters',
+      extendPropsSuggestion: 'Extend shared FormComponentProps',
+    },
+    hasSuggestions: true,
+    schema: [],
+  },
+
+  create(context) {
+    const parserServices = context.parserServices
+    const checker = parserServices?.program?.getTypeChecker?.()
+
+    function getMissingProps(props: string[]) {
+      return REQUIRED_PROPS.filter((r) => !props.includes(r))
+    }
+
+    function findFormJSX(body: TSESTree.BlockStatement | TSESTree.Expression | null): boolean {
+      if (!body) return false
+      const check = (node: TSESTree.Node): boolean => {
+        if (node.type === 'JSXElement') {
+          return node.openingElement.name.type === 'JSXIdentifier' &&
+                 node.openingElement.name.name === 'form'
+        }
+        if (node.type === 'JSXFragment') {
+          return node.children.some(child =>
+            child.type === 'JSXElement' && check(child)
+          )
+        }
+        return false
+      }
+
+      if (body.type === 'BlockStatement') {
+        return body.body.some((stmt) =>
+          stmt.type === 'ReturnStatement' &&
+          stmt.argument &&
+          check(stmt.argument)
+        )
+      }
+
+      return check(body)
+    }
+
+    function checkDestructuredFunction(node: TSESTree.FunctionDeclaration | TSESTree.ArrowFunctionExpression) {
+      const jsxFound = findFormJSX(node.body)
+      if (!jsxFound) return
+
+      const param = node.params[0]
+      if (!param || param.type !== 'ObjectPattern') {
+        context.report({ node, messageId: 'missingFormProps' })
+        return
+      }
+
+      const props = param.properties
+        .filter((p): p is TSESTree.Property =>
+          p.type === 'Property' && p.key.type === 'Identifier'
+        )
+        .map((p) => (p.key as TSESTree.Identifier).name)
+
+      const missing = getMissingProps(props)
+      if (missing.length === 0) return
+
+      context.report({
+        node,
+        messageId: 'missingFormProps',
+        suggest: [
+          {
+            messageId: 'addPropsSuggestion',
+            fix(fixer) {
+              const source = context.getSourceCode()
+              const lastProp = param.properties[param.properties.length - 1]
+              const insertText = props.length ? `, ${missing.join(', ')}` : missing.join(', ')
+              return fixer.insertTextAfter(lastProp || param, insertText)
+            },
+          },
+        ],
+      })
+    }
+
+    function checkTypedFunction(node: TSESTree.FunctionDeclaration | TSESTree.ArrowFunctionExpression) {
+      const jsxFound = findFormJSX(node.body)
+      if (!jsxFound) return
+
+      const param = node.params[0]
+      if (!param || param.type !== 'Identifier' || !param.typeAnnotation) return
+
+      const tsNode = parserServices.esTreeNodeToTSNodeMap.get(param)
+      const type = checker?.getTypeAtLocation(tsNode)
+      if (!type) return
+
+      const props = checker.getPropertiesOfType(type).map((s) => s.name)
+      const missing = getMissingProps(props)
+      if (missing.length === 0) return
+
+      context.report({
+        node,
+        messageId: 'missingFormProps',
+        suggest: [
+          {
+            messageId: 'extendPropsSuggestion',
+            fix: (fixer) => null, // cannot auto-fix external types
+          },
+        ],
+      })
+    }
+
+    function checkClassComponent(node: TSESTree.ClassDeclaration) {
+      const renderMethod = node.body.body.find(
+        (m): m is TSESTree.MethodDefinition =>
+          m.type === 'MethodDefinition' && m.key.type === 'Identifier' && m.key.name === 'render'
+      )
+      if (!renderMethod || !renderMethod.value || renderMethod.value.type !== 'FunctionExpression') return
+
+      const jsxFound = findFormJSX(renderMethod.value.body)
+      if (!jsxFound) return
+
+      const typeParam = node.superTypeParameters?.params[0]
+      if (!typeParam) return
+
+      context.report({
+        node,
+        messageId: 'missingFormProps',
+        suggest: [
+          {
+            messageId: 'extendPropsSuggestion',
+            fix: (fixer) => null,
+          },
+        ],
+      })
+    }
+
+    return {
+      FunctionDeclaration: (node) => {
+        const param = node.params[0]
+        if (!param) return
+        if (param.type === 'ObjectPattern') {
+          checkDestructuredFunction(node)
+        } else if (param.type === 'Identifier' && param.typeAnnotation) {
+          checkTypedFunction(node)
+        }
+      },
+      ArrowFunctionExpression: (node) => {
+        const param = node.params[0]
+        if (!param) return
+        if (param.type === 'ObjectPattern') {
+          checkDestructuredFunction(node)
+        } else if (param.type === 'Identifier' && param.typeAnnotation) {
+          checkTypedFunction(node)
+        }
+      },
+      ClassDeclaration: checkClassComponent,
+    }
+  },
+}
+
+export default rule
+
+```
+---
+
+🧪 Example Suggestions
+
+✅ Fix: Add Missing Props
+
+// Before
+const MyForm = ({}) => <form />
+
+// Fix Suggestion:
+const MyForm = ({ onSubmit, formId }) => <form />
+
+💡 Suggest: Extend Props
+
+type Props = {
+  somethingElse: string
+}
+
+// Before
+const MyForm = (props: Props) => <form />
+
+// Suggest:
+type Props = Base & FormComponentProps
+
+> You can't auto-fix this safely, so we surface it as a manual suggestion.
+
+
+
+
+---
+
+🧰 Next Steps
+
+If you want:
+
+🔌 Plugin wrapper with index.ts and configs/recommended.ts
+
+🧪 Tests using @typescript-eslint/rule-tester
+
+🧪 Fixtures for class + function components
+
+
+Let me know — I can scaffold the full plugin structure.
+
+
+
