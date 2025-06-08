@@ -279,9 +279,168 @@ Be extensible through lifecycle-aware plugins
 Support watch mode, CI mode, and rich audit reporting
 
 
+---
+
+1. Directory Scanner Prompt (scanFiles.ts)
+
+> I’m building a TypeScript-based code analysis tool. Create a file scanner module using fdir that:
+
+Recursively crawls a given folder
+
+Ignores files based on .gitignore using the ignore npm package
+
+Filters to include only .ts, .tsx, .js, .jsx files
+
+Returns full absolute paths as a flat array
+
+Is async and reusable
+
+Has good DX: readable, typed, minimal deps
+
+Exported as scanFiles(rootPath: string): Promise<string[]>
+
+
+
+
 
 ---
 
+2. AST + Plugin Executor Prompt (analyzeFile.ts)
+
+> I need a reusable TypeScript module that:
+
+Accepts a file path, reads its contents, parses it with ts-morph
+
+Runs a list of plugin hooks of type Plugin.analyzeFile(meta, ast, graph)
+
+Each plugin returns metrics, diagnostics, or suggestions
+
+Returns a PluginResult[]
+
+This should be idiomatic, strongly typed, and make AST reuse easy
+
+
+
+
+Define this Plugin interface:
+
+interface Plugin {
+  name: string;
+  analyzeFile(meta: FileMeta, ast: SourceFile, graph: CodeGraph): PluginResult;
+}
+
+
+---
+
+3. Graph Model Prompt (createGraph.ts)
+
+> Generate a module that creates a semantic code graph. Use TypeScript types like:
+
+
+
+type CodeNode = { id: string; type: string; name: string };
+type CodeEdge = { from: string; to: string; type: 'imports' | 'calls' | 'extends' };
+type CodeGraph = { nodes: CodeNode[]; edges: CodeEdge[] };
+
+> The function should:
+
+Accept all source files and their ASTs
+
+Track imports, calls, class inheritance, etc.
+
+Build a clean, queryable graph object
+
+Be exportable and easy to debug
+
+
+
+
+
+---
+
+4. Plugin System Prompt (runPlugins.ts)
+
+> Implement a plugin runner in TypeScript that:
+
+Accepts an array of plugins and a list of files
+
+Runs per-file analysis with each plugin
+
+Optionally runs afterAnalyze(graph) on each plugin
+
+Collects results (metrics, suggestions, diagnostics) into a unified PluginRunResult
+
+Is asynchronous and logs timing/errors
+
+
+
+
+Use this minimal plugin interface:
+
+interface Plugin {
+  name: string;
+  analyzeFile?(meta: FileMeta, ast: SourceFile, graph: CodeGraph): PluginResult;
+  afterAnalyze?(graph: CodeGraph): PluginResult;
+}
+
+
+---
+
+5. Watch Mode Prompt (watcher.ts)
+
+> Build a file watcher module using chokidar that:
+
+Watches a folder and triggers a callback on file add/change/delete
+
+Debounces changes
+
+Uses an internal file hash cache (e.g., SHA1) to skip unchanged files
+
+Can be started/stopped cleanly
+
+Exposes startWatching() and stopWatching() functions
+
+
+
+
+
+---
+
+6. CLI Entrypoint Prompt (cli.ts)
+
+> Create a CLI entrypoint using commander (or yargs) that:
+
+Supports subcommands: analyze, watch, ci
+
+Accepts --plugins, --format, --out
+
+Loads .codemaprc.ts config (optional)
+
+Orchestrates scanning, analysis, and plugin execution
+
+Outputs results in JSON or human-readable format
+
+
+
+
+
+---
+
+7. Audit Logger Prompt (logger.ts)
+
+> Build an audit logger that:
+
+Accepts plugin results and writes structured logs to file
+
+Includes timestamp, file, plugin name, message, severity, optional fix diff
+
+Saves to .codemap.audit.json
+
+Exposes a logAuditEntries(entries: AuditEntry[], options) function
+
+Optionally pretty-prints logs in terminal
+
+-----
 
 
 
