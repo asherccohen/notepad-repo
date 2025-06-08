@@ -440,7 +440,162 @@ Exposes a logAuditEntries(entries: AuditEntry[], options) function
 
 Optionally pretty-prints logs in terminal
 
------
+
+---
+
+🔍 Plugin 1: Complexity & Module Graph Plugin
+
+Prompt
+
+> Write a TypeScript plugin for a CLI-based code analysis tool. The plugin should:
+
+Be named complexity-analyzer
+
+Export a Plugin object implementing this interface:
+
+
+
+
+interface Plugin {
+  name: string;
+  analyzeFile(meta: FileMeta, ast: SourceFile, graph: CodeGraph): PluginResult;
+}
+
+> Compute per-function and per-file metrics:
+
+Cyclomatic complexity
+
+Function length (in lines)
+
+Nesting depth
+
+Exported symbols
+
+Imported modules
+
+
+Add nodes and edges to the provided graph parameter:
+
+Add CodeNode for each file and function
+
+Add CodeEdge for function calls, imports, exports
+
+
+Return a PluginResult object per file containing:
+
+Filename, functions, metrics, errors (if any)
+
+
+Be fully typed, minimal-deps, and testable in isolation
+
+
+
+
+
+---
+
+🧠 Plugin 2: Refactor Hints Plugin
+
+Prompt
+
+> Write a TypeScript plugin named refactor-hints for a modular code analysis CLI. The plugin should:
+
+Export a Plugin object:
+
+
+
+
+interface Plugin {
+  name: string;
+  analyzeFile(meta: FileMeta, ast: SourceFile): PluginResult;
+}
+
+> Parse the AST using ts-morph and provide refactor suggestions:
+
+Functions with more than 3 nested blocks → Suggest extraction
+
+Long parameter lists (> 4 params) → Suggest object refactor
+
+Repeated identifiers/constants → Suggest variable hoisting
+
+Classes with only static methods → Suggest converting to plain object
+
+
+For each issue, return a suggestion object like:
+
+
+
+
+interface Suggestion {
+  message: string;
+  severity: 'info' | 'warn';
+  location: { file: string; line: number };
+  suggestionType: 'refactor';
+}
+
+> Collect all suggestions into a PluginResult
+
+No actual code mutation, just analysis
+
+Designed to be used in a watch/CI mode
+
+
+
+
+
+---
+
+⚙️ Plugin 3: Optimization Hints Plugin
+
+Prompt
+
+> Write a TypeScript plugin named optimization-hints that:
+
+Analyzes TypeScript source files using ts-morph
+
+Exports a Plugin implementing:
+
+
+
+
+interface Plugin {
+  name: string;
+  analyzeFile(meta: FileMeta, ast: SourceFile): PluginResult;
+}
+
+> Detects code patterns that may lead to runtime or bundle size issues:
+
+Unused imports
+
+Unused local variables
+
+Dynamic require() or import() without code-splitting
+
+Large object literals or JSON inlined in modules (>50 LOC)
+
+Top-level console.log or debugger statements
+
+
+For each issue found, return a suggestion like:
+
+
+
+
+interface Suggestion {
+  message: string;
+  severity: 'warn' | 'info';
+  location: { file: string; line: number };
+  suggestionType: 'performance';
+}
+
+> Designed for incremental and CI-safe runs
+
+
+
+
+
+---
+
 
 
 
