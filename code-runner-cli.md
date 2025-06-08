@@ -278,8 +278,225 @@ Be extensible through lifecycle-aware plugins
 
 Support watch mode, CI mode, and rich audit reporting
 
+---
+
+🧠 Prompt: Build a Modular TypeScript Code Analysis Engine Beyond ESLint
+
+> Build a modular TypeScript-based code analysis tool that:
+
+🚀 Goal
+
+Provide deep insights into code structure, semantics, and evolution, going beyond linting by combining AST parsing, type-aware analysis, and graph modeling.
+
+This tool is intended to run:
+
+As a CLI with pluggable options (e.g. mytool analyze --plugin=complexity)
+
+In watch mode, using incremental parsing and smart caching
+
+In CI pipelines, to produce JSON/graph outputs for dashboards or gates
+
+(Optionally) embedded in a server or browser, thanks to a clean architecture
 
 ---
+
+🔎 Key Differences vs ESLint
+
+This is not a linter, and must not be architected as one.
+
+Capability	ESLint	This Tool
+
+Per-file rule checking	✅ Yes	✅ Supported via plugins
+Type-aware, cross-file	❌ Partial (needs type info)	✅ Full AST + TypeChecker integration
+Graph modeling	❌ No	✅ Native graph plugin support
+Structural metrics	❌ No	✅ Per file/function/module
+Call graphs	❌ No	✅ First-class support
+Semantic refactor hints	❌ Only pattern-based	✅ Use symbol + flow analysis
+Audit logs & trends	❌ No	✅ Persistent result store (JSON/DB)
+Runtime reuse (web/server)	❌ Hard	✅ Designed for polymorphic use
+
+
+
+---
+
+🧩 Architecture Overview
+
+Core Engine Responsibilities:
+
+Scan a folder/repo with fdir
+
+Parse .ts/.tsx files using ts-morph
+
+Normalize per-file metadata (FileMeta)
+
+Expose a plugin system:
+
+interface Plugin {
+  name: string;
+  analyzeFile(meta: FileMeta, ast: SourceFile, graph?: CodeGraph): PluginResult;
+}
+
+Maintain a global CodeGraph for module/function relationships
+
+Cache parsed ASTs and intermediate results for speed
+
+
+Plugin System
+
+Each plugin can:
+
+Traverse the AST (via ts-morph)
+
+Use type info (TypeChecker) for resolution
+
+Contribute to the graph (e.g., add FunctionNode, CallEdge)
+
+Emit Suggestion[], Metric[], or RefactorHint[] with rich metadata
+
+
+
+---
+
+🔌 Built-in Plugins (to prototype)
+
+1. complexity-analyzer
+
+Outputs cyclomatic complexity, nesting, LOC, per function
+
+Adds function nodes + dependencies to CodeGraph
+
+
+2. refactor-hints
+
+Suggests improvements like:
+
+Extract long functions
+
+Convert static-only classes to objects
+
+Reduce parameter count
+
+
+
+3. optimization-hints
+
+Flags:
+
+Large inlined objects
+
+Top-level console/debugger
+
+Dynamic imports without splitting
+
+
+
+4. module-graph
+
+Builds a graph of imports/exports
+
+Detects orphaned modules, circular deps, excessive fan-in/out
+
+
+5. code-audit-log
+
+Stores historical plugin results to JSON or DB
+
+Can compare current results with previous baseline
+
+
+
+---
+
+📁 File Scanner (powered by fdir)
+
+Use fdir to scan directories efficiently:
+
+Ignore .git, node_modules, dist, .next
+
+Include .ts, .tsx, .js if needed
+
+Debounce re-runs in watch mode
+
+
+
+---
+
+📊 Output Format
+
+Each plugin returns:
+
+interface PluginResult {
+  file: string;
+  diagnostics: Suggestion[];
+  metrics?: Record<string, number>;
+  graphChanges?: CodeGraphPatch;
+}
+
+This can be:
+
+Logged in CLI
+
+Exported to JSON
+
+Stored as audit data
+
+Hooked into a dashboard/report renderer
+
+
+
+---
+
+🔁 Watch Mode
+
+Only re-analyze changed files
+
+Rebuild affected portions of the graph
+
+Reuse cached ASTs + type metadata
+
+Use fast dependency tracking via plugin hooks
+
+
+
+---
+
+✅ Plugin Guidelines
+
+All plugins must be:
+
+Type-safe
+
+Deterministic
+
+Side-effect free
+
+CI-friendly
+
+Return structured data (no console.log-only output)
+
+
+
+
+---
+
+🔚 Final Notes
+
+This tool complements, not replaces ESLint. Use ESLint for per-line rules and autofixable style issues. Use this tool for:
+
+Architectural insight
+
+Technical debt discovery
+
+Refactoring decisions
+
+Cross-project dashboards
+
+Longitudinal audits
+
+
+
+---
+
 
 1. Directory Scanner Prompt (scanFiles.ts)
 
