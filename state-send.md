@@ -485,3 +485,149 @@ return output;
 
 It’s possible to build a small linter rule or wrap send() calls in a proxy that tracks usage during render. Let me know and I’ll show you how.
 
+Here's a detailed prompt you can use to instruct an LLM (like ChatGPT or a local code assistant) to help you build imperative, event-driven logic in your React app using the design we discussed:
+
+
+---
+
+🔧 Prompt for LLM: Help Me Build Event-Driven State Logic in React
+
+I’m building an event-driven state logic system using React’s useState, without abstractions like reducers or XState.
+
+The system should:
+
+
+---
+
+✅ API & Architecture
+
+I have a custom React hook:
+
+useEventState<State, Context, Event>(
+  initialState: State,
+  initialContext: Context,
+  {
+    guards: Record<string, (ctx: Context, payload: unknown) => boolean>,
+    actions: Record<string, (ctx: Context, payload: unknown, send: (event: Event) => void) => void>
+  }
+): [state, context, send, setContext, setState]
+
+Where:
+
+State is a string union of states (e.g. "idle" | "loading" | "error")
+
+Context is an object with extended state (e.g. { data: any; error: any })
+
+Event is a discriminated union of { type: string; payload: unknown } — this gives me full type safety for event handling.
+
+
+
+---
+
+✅ I want to build logic like this:
+
+switch (state) {
+  case 'idle':
+    switch (event.type) {
+      case 'LOAD':
+        if (!guards.canLoad(context, event.payload)) return;
+        actions.logStart(context, event.payload, send);
+        actions.fetchData(context, event.payload, send);
+        setState('loading');
+        return;
+    }
+    break;
+
+  case 'loading':
+    switch (event.type) {
+      case 'SUCCESS':
+        setContext(prev => ({ ...prev, data: event.payload }));
+        setState('success');
+        return;
+    }
+    break;
+}
+
+I handle all state transitions and side effects inline, using switch(state) and switch(event.type), manually invoking:
+
+guards to decide if a transition should proceed
+
+actions to perform side effects (e.g. fetch, log, track)
+
+setContext to mutate extended state
+
+setState to transition between states
+
+
+I expect to call send({ type: ..., payload: ... }) from event handlers or actions — but never during render.
+
+
+---
+
+🧠 Rules & Gotchas to Avoid
+
+Tell me when I misuse this model. Warn me if:
+
+1. I call send() inside render — this will break React.
+
+
+2. I call send() in a useState initializer or top-level code — same problem.
+
+
+3. I forget to update context + state together, causing desync.
+
+
+4. I fire send() multiple times in parallel without guards, which can cause race conditions.
+
+
+5. I write guards or actions that mutate context — they must be pure (no direct mutation).
+
+
+6. I put long-running effects directly in render — these must live inside actions or effects.
+
+
+
+
+---
+
+🚧 Help me debug if:
+
+I get a React error like “Cannot update a component while rendering”
+
+My component re-renders infinitely
+
+State and context seem "out of sync"
+
+Actions run multiple times unexpectedly
+
+
+
+---
+
+🤖 What You Should Help Me Do
+
+Write new event-driven logic using this API
+
+Add new states, events, guards, and actions
+
+Help model complex flows like:
+
+retry loops
+
+optimistic updates
+
+fetch cancellations
+
+
+Keep everything imperative and inside React
+
+
+Always assume I want full control — no libraries, no useReducer, no XState. Just useState, switch statements, and safe, imperative event handling.
+
+
+---
+
+Let me know if you'd like this wrapped into a reusable doc, snippet package, or even ESLint rules to enforce safe usage.
+
+
+
