@@ -1,3 +1,175 @@
+Got it.
+
+You're enforcing:
+
+All events must be { type: string, payload: unknown }
+
+No extra shape — just a discriminated union based on type
+
+Devs handle all transitions imperatively inside switch(state), then switch(event.type)
+
+context is a single mutable object (like XState's context)
+
+You want a utility hook like:
+
+
+const [state, context, send, setContext] = useEventState(...)
+
+
+---
+
+✅ Updated Type Definitions
+
+type EventObject<T extends string = string, P = unknown> = {
+  type: T;
+  payload: P;
+};
+
+type Send<E extends EventObject> = (event: E) => void;
+
+export function useEventState<
+  State extends string,
+  Context,
+  E extends EventObject
+>(
+  initialState: State,
+  initialContext: Context,
+  options: {
+    guards?: Record<string, (ctx: Context, payload: unknown) => boolean>;
+    actions?: Record<string, (ctx: Context, payload: unknown, send: Send<E>) => void>;
+  }
+): [State, Context, Send<E>, React.Dispatch<React.SetStateAction<Context>>, React.Dispatch<React.SetStateAction<State>>] {
+  const [state, setState] = useState<State>(initialState);
+  const [context, setContext] = useState<Context>(initialContext);
+  const { guards = {}, actions = {} } = options;
+
+  const send: Send<E> = (event) => {
+    // no logic here – dev handles everything outside
+  };
+
+  return [state, context, send, setContext, setState];
+}
+
+
+---
+
+✅ Example Usage (fully typed, no abstractions)
+
+type State = 'idle' | 'loading' | 'success' | 'error';
+
+type Context = {
+  data: unknown | null;
+  error: unknown | null;
+};
+
+type Events =
+  | { type: 'LOAD'; payload: null }
+  | { type: 'SUCCESS'; payload: unknown }
+  | { type: 'ERROR'; payload: unknown };
+
+const guards = {
+  canLoad: (ctx: Context, _payload: unknown) => ctx.data == null,
+};
+
+const actions = {
+  fetchData: (_ctx: Context, _payload: unknown, send: (event: Events) => void) => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(data => send({ type: 'SUCCESS', payload: data }))
+      .catch(err => send({ type: 'ERROR', payload: err }));
+  },
+  logLoadStart: () => console.log('Starting load'),
+};
+
+function Example() {
+  const [state, context, send, setContext, setState] = useEventState<State, Context, Events>(
+    'idle',
+    { data: null, error: null },
+    { guards, actions }
+  );
+
+  const handleEvent = (event: Events) => {
+    switch (state) {
+      case 'idle': {
+        switch (event.type) {
+          case 'LOAD': {
+            if (!guards.canLoad(context, event.payload)) return;
+
+            actions.logLoadStart(context, event.payload, send);
+            actions.fetchData(context, event.payload, send);
+            setState('loading');
+            return;
+          }
+        }
+        break;
+      }
+
+      case 'loading': {
+        switch (event.type) {
+          case 'SUCCESS': {
+            setContext(prev => ({ ...prev, data: event.payload, error: null }));
+            setState('success');
+            return;
+          }
+
+          case 'ERROR': {
+            setContext(prev => ({ ...prev, error: event.payload, data: null }));
+            setState('error');
+            return;
+          }
+        }
+        break;
+      }
+
+      case 'success':
+      case 'error': {
+        switch (event.type) {
+          case 'LOAD': {
+            setContext({ data: null, error: null });
+            actions.fetchData(context, event.payload, send);
+            setState('loading');
+            return;
+          }
+        }
+        break;
+      }
+    }
+  };
+
+  return (
+    <div>
+      {state === 'idle' && <button onClick={() => handleEvent({ type: 'LOAD', payload: null })}>Load</button>}
+      {state === 'loading' && <p>Loading...</p>}
+      {state === 'success' && <pre>{JSON.stringify(context.data, null, 2)}</pre>}
+      {state === 'error' && (
+        <div>
+          <p style={{ color: 'red' }}>{String(context.error)}</p>
+          <button onClick={() => handleEvent({ type: 'LOAD', payload: null })}>Retry</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+---
+
+💡 Notes
+
+All events follow the { type, payload } pattern.
+
+Type-safe — send() and event.payload are correctly inferred.
+
+You write manual transitions, close to setState, setContext, guard, action.
+
+You still get strong typing and structure without any abstraction or runtime magic.
+
+
+Want a generic helper like createEventMap() to generate types from event declarations automatically? I can add that too.
+
+
+
+
 This pattern you've defined — a manual, imperative event-state machine built with useState, guards, and actions — is elegant for senior developers with mental models shaped by state machines or message passing. But let’s analyze it deeply through three lenses:
 
 
