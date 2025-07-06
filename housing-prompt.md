@@ -40,6 +40,38 @@ Still affordable for working/middle-class people
 Avoid listings or advice skewed toward luxury investors or expat-retirement resorts.
 
 
+--
+
+> I’m evaluating real estate in Menorca (Balearic Islands), Corfu, and Zakynthos (Greece). I want to find houses (preferably detached) for long-term living—not luxury villas or hyper-touristy investments. Focus on realistic, accessible prices for working/middle-class buyers.
+
+Questions to answer:
+
+1. What are current price ranges (€ or €/m²) for detached houses in non-premium, inland or small-town areas on each island?
+
+
+2. What villages or neighborhoods offer affordability, local communities, infrastructure (roads, internet), and aren’t overrun with tourists or wealthy buyers?
+
+
+3. Renovation context: average renovation costs per m², typical pitfalls, timeframes; builder availability and challenges.
+
+
+4. Legal/buying process: For EU/non-EU buyers – requirements (tax number, bank account, permits), transaction costs (transfer tax, notary, legal fees), and ongoing taxes.
+
+
+5. Rental/ROI angle: If I buy, what rental yields can I expect in inland vs coastal areas?
+
+
+6. Local listing resources: key real-estate websites or local agencies in each area that focus on everyday homes, not luxury villas.
+
+
+
+Avoid generic luxury-market info. Answer with citations and share sources.
+
+
+
+
 ---
+
+Would you like me to run this prompt across all three LLMs and compile a unified report back here?
 
 
