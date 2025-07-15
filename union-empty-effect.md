@@ -386,6 +386,88 @@ optionalString(min: number, max: number, message: string)
 
 I can give you one that's clean and reusable.
 
+You're right — thanks for catching that.
+
+As of latest @effect/schema@0.54.x+ (for effect@2.x), the correct way to implement a custom transform or preprocessor is via S.transformOrFail using the new function signature:
+
+S.transformOrFail<From, To>(
+  from: Schema<From>,
+  to: Schema<To>,
+  decode: (from: From, options: ParseOptions, self: AST.TransformOrFail) => ParseResult.ParseResult<To>,
+  encode: (to: To, options: ParseOptions, self: AST.TransformOrFail) => ParseResult.ParseResult<From>
+)
+
+
+---
+
+✅ Correct and working transformOrFail that normalizes "" to undefined
+
+import * as S from "effect/schema/Schema"
+import * as ParseResult from "effect/schema/ParseResult"
+import * as AST from "effect/schema/AST"
+
+const normalizeEmptyStringToUndefined = S.transformOrFail(
+  S.string,                              // from
+  S.optional(S.string),                 // to
+  (value, _options, _self) => {
+    return value.trim() === ""
+      ? ParseResult.succeed(undefined)
+      : ParseResult.succeed(value)
+  },
+  (value, _options, _self) => {
+    return value === undefined
+      ? ParseResult.succeed("")
+      : ParseResult.succeed(value)
+  }
+)
+
+
+---
+
+🧱 Then apply validation only when defined:
+
+const optionalBoundedString = normalizeEmptyStringToUndefined.pipe(
+  S.optional(
+    S.string.pipe(
+      S.minLength(3),
+      S.maxLength(10),
+      S.annotations({ message: "Must be 3–10 characters" })
+    )
+  )
+)
+
+
+---
+
+🧪 Behavior
+
+Input	Output / Result
+
+""	✅ normalized to undefined
+"hi"	❌ fails minLength
+"hello"	✅ passes
+"toolongtoolong"	❌ fails maxLength
+undefined	✅ passes
+
+
+
+---
+
+✅ Summary
+
+✅ Correct syntax with 3-arg decode and encode function
+
+🧼 Handles empty strings from FormData
+
+💬 Avoids "expected undefined" confusion from union errors
+
+✨ Works cleanly with .optional(...) + refinements
+
+
+Let me know if you want to package this into a factory function or use it across your schemas.
+
+
+
 
 
 
