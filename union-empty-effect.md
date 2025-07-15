@@ -268,6 +268,126 @@ Or register them as optional(S.never) if you want to ensure they aren't modified
 
 Or strip them before validating if FormData sends them anyway
 
+optional but max length when defined 
+
+Yes — this is a subtle but real issue with how effect/schema composes S.optional(...) and refinements like S.minLength / S.maxLength.
+
+You're seeing:
+
+expected undefined, received "632662"
+
+even though "632662" is defined — just too long. The error makes it seem like the value was not allowed to exist, which is misleading.
+
+
+---
+
+🎯 What's really happening?
+
+When you do:
+
+S.optional(
+  S.string.pipe(
+    S.maxLength(5)
+  )
+)
+
+This creates a union:
+
+S.union(
+  S.literal(undefined),
+  S.string.pipe(S.maxLength(5))
+)
+
+If the value fails the maxLength refinement, then neither union branch matches:
+
+undefined branch fails (value is defined)
+
+string branch fails (value is too long)
+
+
+So Effect reports:
+
+❌ Expected: undefined (first union arm)
+
+❌ Expected: string (maxLength=5) (second arm)
+
+
+This is expected behavior — but the messaging is confusing when viewed from a user perspective.
+
+
+---
+
+✅ Recommended Fix: Use a transform instead of optional union
+
+Instead of S.optional(...), define a schema that allows undefined after validating:
+
+import * as S from "effect/schema/Schema"
+import * as ParseResult from "effect/schema/ParseResult"
+
+const optionalStringWithBoundaries = S.union(
+  S.literal(undefined),
+  S.string.pipe(
+    S.minLength(3),
+    S.maxLength(5),
+    S.annotations({ message: "Must be between 3 and 5 characters" })
+  )
+)
+
+If that still yields weird errors from the union, prefer this instead:
+
+
+---
+
+✅ Better: Normalize "" → undefined, then apply refinement conditionally
+
+const normalizeEmpty = S.transformOrFail(
+  S.string,
+  S.optional(S.string),
+  (v) => v.trim() === "" ? ParseResult.succeed(undefined) : ParseResult.succeed(v),
+  (v) => v === undefined ? ParseResult.succeed("") : ParseResult.succeed(v)
+)
+
+const optionalBounded = normalizeEmpty.pipe(
+  S.optional(
+    S.string.pipe(
+      S.minLength(3),
+      S.maxLength(5),
+      S.annotations({ message: "Must be between 3 and 5 characters" })
+    )
+  )
+)
+
+This gives you:
+
+✅ Clean error: "Must be between 3 and 5 characters" when too long
+
+✅ No confusing "expected undefined" messages
+
+✅ Handles "" and undefined as “not provided”
+
+
+
+---
+
+🧪 TL;DR
+
+S.optional(...) creates a union, which leads to two error branches.
+
+The "expected undefined" is just the first union branch failing.
+
+Use S.transformOrFail to normalize and avoid confusing dual errors.
+
+Prefer refining after transforming instead of relying on union semantics.
+
+
+Let me know if you want a factory function like:
+
+optionalString(min: number, max: number, message: string)
+
+I can give you one that's clean and reusable.
+
+
+
 
 
 
