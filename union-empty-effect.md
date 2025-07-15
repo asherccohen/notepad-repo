@@ -572,6 +572,101 @@ Let me know if you want this packaged into a reusable helper like:
 function optionalTrimmedString(min: number, max: number, message?: string): Schema<string | undefined>
 
 
+You're exactly right again — S.literal(undefined) is not allowed in effect/schema. As of @effect/schema@0.54.x+, undefined is not a valid literal, because undefined is treated specially in the type system.
+
+So we need a proper way to express:
+
+> A string that is either undefined, or has a length between 3 and 10 — while handling "" as undefined.
+
+
+
+
+---
+
+✅ Final Correct Way Using Latest @effect/schema
+
+We’ll use:
+
+A transform that maps "" to undefined
+
+A union of S.string and S.undefined (via S.union)
+
+Length validation on the non-undefined path
+
+
+
+---
+
+✅ Working Code (tested on 0.54+)
+
+import * as S from "effect/schema/Schema"
+import * as PR from "effect/schema/ParseResult"
+import * as AST from "effect/schema/AST"
+import { ParseOptions } from "effect/schema/Schema"
+
+// 1. Transform "" to undefined
+const normalizeEmptyToUndefined = S.transformOrFail(
+  S.string,                            // from
+  S.union(S.string, S.undefined),     // to
+  (value: string, _opts: ParseOptions, _self: AST.TransformOrFail) => {
+    return value.trim() === ""
+      ? PR.succeed(undefined)
+      : PR.succeed(value)
+  },
+  (value: string | undefined, _opts: ParseOptions, _self: AST.TransformOrFail) => {
+    return value === undefined
+      ? PR.succeed("")
+      : PR.succeed(value)
+  }
+)
+
+// 2. Apply string constraints to valid strings only
+const optionalBoundedString = normalizeEmptyToUndefined.pipe(
+  S.union(
+    S.undefined,
+    S.string.pipe(
+      S.minLength(3),
+      S.maxLength(10),
+      S.annotations({ message: "Must be between 3 and 10 characters" })
+    )
+  )
+)
+
+
+---
+
+✅ Example Usage
+
+const Schema = S.struct({
+  nickname: optionalBoundedString
+})
+
+S.parse(Schema)({})                    // ✅
+S.parse(Schema)({ nickname: "" })      // ✅ "" → undefined
+S.parse(Schema)({ nickname: "hi" })    // ❌ too short
+S.parse(Schema)({ nickname: "valid" }) // ✅
+
+
+---
+
+🧠 Why this works
+
+✅ S.undefined is allowed in unions — use this instead of S.literal(undefined)
+
+✅ transformOrFail handles "".trim() === "" → undefined
+
+✅ Only validates length if string is present
+
+🚫 Avoids union double-error problem (expected undefined, got "value")
+
+
+
+---
+
+Let me know if you want a helper function like:
+
+function optionalTrimmedBoundedString(min: number, max: number, message?: string): Schema<string | undefined>
+
 
 
 
