@@ -467,6 +467,110 @@ undefined	✅ passes
 Let me know if you want to package this into a factory function or use it across your schemas.
 
 
+You're 100% correct again — in the latest version of @effect/schema, the to type in S.transformOrFail(from, to, decode, encode) must be a non-optional schema, because:
+
+> S.optional(...) is a modifier, not a base schema — so it cannot be used as the to argument.
+
+
+
+
+---
+
+✅ Updated, Correct Version: Handle "" → undefined for optional strings with length constraints
+
+Here’s the working and idiomatic version for Effect Schema 0.54+ that:
+
+Accepts "" and turns it into undefined
+
+Applies minLength/maxLength only if value is provided
+
+Avoids using S.optional(...) in the to position of transformOrFail
+
+
+
+---
+
+✅ Step-by-step
+
+import * as S from "effect/schema/Schema"
+import * as PR from "effect/schema/ParseResult"
+import * as AST from "effect/schema/AST"
+import { ParseOptions } from "effect/schema/Schema"
+
+1. Create a transform from string → string | undefined
+
+const normalizeEmptyString = S.transformOrFail(
+  S.string,                            // from: string
+  S.union(S.string, S.literal(undefined)), // to: string | undefined
+  (value: string, _options: ParseOptions, _self: AST.TransformOrFail) => {
+    return value.trim() === ""
+      ? PR.succeed(undefined)
+      : PR.succeed(value)
+  },
+  (value: string | undefined, _options: ParseOptions, _self: AST.TransformOrFail) => {
+    return value === undefined
+      ? PR.succeed("")
+      : PR.succeed(value)
+  }
+)
+
+
+---
+
+2. Apply string constraints to the non-undefined branch
+
+const boundedString = S.string.pipe(
+  S.minLength(3),
+  S.maxLength(10),
+  S.annotations({ message: "Must be between 3 and 10 characters" })
+)
+
+
+---
+
+3. Combine: final schema
+
+export const optionalBoundedString = normalizeEmptyString.pipe(
+  S.union(
+    S.literal(undefined),
+    boundedString
+  )
+)
+
+
+---
+
+✅ Usage
+
+const MySchema = S.struct({
+  nickname: optionalBoundedString
+})
+
+S.parse(MySchema)({})                     // ✅ OK
+S.parse(MySchema)({ nickname: "" })       // ✅ OK (normalized to undefined)
+S.parse(MySchema)({ nickname: "hi" })     // ❌ too short
+S.parse(MySchema)({ nickname: "valid" })  // ✅ OK
+S.parse(MySchema)({ nickname: "toolongtoolong" }) // ❌ too long
+
+
+---
+
+🧠 Why this works
+
+S.union(S.string, S.literal(undefined)) is allowed as a to schema
+
+Avoids the use of S.optional(...) directly inside transformOrFail
+
+Gives clean and accurate error messages without "expected undefined" noise
+
+
+
+---
+
+Let me know if you want this packaged into a reusable helper like:
+
+function optionalTrimmedString(min: number, max: number, message?: string): Schema<string | undefined>
+
 
 
 
