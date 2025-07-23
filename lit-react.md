@@ -1,3 +1,102 @@
+Got it — if you're disabling Shadow DOM (i.e., rendering into light DOM), that changes a few things but also simplifies some others — especially around styling and integration with global CSS.
+
+Here’s how to adapt your Lit + React setup accordingly.
+
+
+---
+
+✅ Disable Shadow DOM in Lit
+
+You need to override the createRenderRoot() method in your Lit component:
+
+createRenderRoot() {
+  return this; // disables Shadow DOM, uses light DOM instead
+}
+
+This makes Lit render into the element's own light DOM, so this.querySelector() and global styles work as expected.
+
+
+---
+
+🔄 Updated Full Example (with createRoot and light DOM)
+
+import { LitElement, html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
+import { createRoot, Root } from 'react-dom/client'
+import React from 'react'
+import MyReactComponent from './MyReactComponent'
+
+@customElement('my-lit-component')
+export class MyLitComponent extends LitElement {
+  @property({ type: String }) message = ''
+
+  private reactRoot?: Root
+  private container?: HTMLDivElement
+
+  // 👇 Disable Shadow DOM
+  createRenderRoot() {
+    return this
+  }
+
+  firstUpdated() {
+    this.container = this.querySelector('#react-root') as HTMLDivElement
+
+    if (this.container) {
+      this.reactRoot = createRoot(this.container)
+      this.renderReact()
+    }
+  }
+
+  updated(changedProps: Map<string, unknown>) {
+    if (changedProps.has('message')) {
+      this.renderReact()
+    }
+  }
+
+  private renderReact() {
+    if (this.reactRoot) {
+      this.reactRoot.render(<MyReactComponent message={this.message} />)
+    }
+  }
+
+  disconnectedCallback() {
+    this.reactRoot?.unmount()
+    super.disconnectedCallback()
+  }
+
+  render() {
+    return html`<div id="react-root"></div>`
+  }
+}
+
+
+---
+
+⚠️ Notes for Light DOM:
+
+Use this.querySelector() instead of this.shadowRoot?.querySelector().
+
+Global styles and :host selectors won't behave like in Shadow DOM — use normal classes and cascading CSS.
+
+If you're injecting React components that expect isolated styling, be aware that light DOM makes them subject to the page's global styles — you might want to scope them manually or use CSS Modules in React.
+
+
+
+---
+
+Let me know if your use case also needs:
+
+multiple React mount points
+
+slotting data from Lit into React
+
+rehydration or SSR considerations
+
+
+I can give you precise patterns for those.
+
+
+
 Yes, 100%. You can absolutely create a base class template for a Lit web component that handles the React mounting logic (createRoot, renderReact, etc.), and then extend it for more specific components with additional reactive properties or custom behavior.
 
 This is a great pattern for reusability, especially when you're embedding React into many Lit-based components.
