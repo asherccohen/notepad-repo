@@ -1,3 +1,43 @@
+**Prompt:**  
+
+*I’m a tech lead evaluating alternatives to Storybook for documenting a module-federated React component library in a resource-constrained environment. Here’s my reasoning and proposed solution—I’d like your critique and suggestions for improvement.*  
+
+### **Context:**  
+- **Problem:** Business requested Storybook for component documentation.  
+- **Constraints:**  
+  - Tight deadlines, hiring freeze, and no dedicated tools team.  
+  - History of Storybook maintenance being costly (upgrade quirks, dependency management, documentation drift).  
+
+### **Proposed Alternative:**  
+A lightweight, self-hosted "component playground" with:  
+1. **Route-per-component** (e.g., `/components/Button`) in a fake app environment.  
+2. **DevTools sidebar** (triggered via URL param `?dev=true`) for:  
+   - Live prop manipulation  
+   - Auto-generated docs (from TS types)  
+   - Toggle between real APIs/MSW mocks.  
+3. **Zero new dependencies** (leverages existing app infrastructure).  
+
+### **Questions:**  
+1. **Trade-offs:** Have I overlooked critical Storybook features this approach can’t replace?  
+2. **Maintenance:** Does this truly reduce long-term overhead, or just shift it?  
+3. **Adoption:** How might this impact consumer experience vs. Storybook?  
+4. **Scaling:** What risks emerge at 50+ components?  
+5. **Alternatives:** Are there hybrid approaches (e.g., partial Storybook adoption) worth considering?  
+
+*Respond with:*  
+- **Strengths** of my approach given the constraints.  
+- **Weaknesses/Risks** I should mitigate.  
+- **Improvements** to match Storybook’s value sustainably.  
+
+---  
+
+This prompt:  
+- **Forces prioritization** by explicitly stating constraints.  
+- **Encourages balanced feedback** (strengths/weaknesses).  
+- **Guides responders** to address your core concerns (maintenance, scaling).  
+
+Optionally, add: *"If advocating for Storybook, specify how you’d solve the maintenance issues I’ve encountered."* to pressure-test opposing views.
+
 # Component Playground: Lightweight Alternative to Storybook  
 *Zero-maintenance component discovery, testing, and documentation for federated UI modules*
 
