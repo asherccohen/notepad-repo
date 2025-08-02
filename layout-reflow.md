@@ -1,4 +1,73 @@
-You're absolutely right — using opacity or transform to "hide" complex components like modals isn't practical in most real-world apps. Especially when:
+
+🖥️ Key Concepts
+
+Rendering (painting pixels) – simply drawing visual changes — is inexpensive for the browser.
+
+Layout (also called reflow/recalculation) – determining positioning and sizing of every element — is costly and slow. Even small layout changes force much work.
+
+
+
+---
+
+🚦 When Layout Becomes Expensive
+
+Changing size or position (e.g. width, height, margins, padding) triggers layout, forcing recalculation of the page structure.
+
+Any element updates that affect its geometry will cause expensive reflow up the tree, potentially involving hundreds or thousands of DOM nodes.
+
+
+
+---
+
+⚡️ Optimizing Updates
+
+UI changes that don’t require reflow (e.g. changing opacity, transforms, or painting offscreen compositing) are much cheaper.
+
+For example:
+
+// Instead of conditional rendering:
+{ showModal && <Modal /> }
+// Better:
+<Modal style={{ opacity: showModal ? 1 : 0 }} />
+
+This allows the component to stay in the compositor layer without triggering a re-layout.
+
+
+
+---
+
+📱 React and Mobile Context
+
+On platforms like React Native, conditional mounting/unmounting components can be heavy, especially deep component trees.
+
+Hiding via transform or opacity (so that layout hasn’t changed) retains position without incurring re-compute costs.
+
+
+
+
+---
+
+🧭 Practical Advice for UI Engineers
+
+Minimize layout-triggering changes—avoid adjusting width/height/margins often.
+
+Prefer updates to GPU-accelerated properties: opacity, transform, and others that stay in the compositing layer.
+
+When dynamic visibility is needed, favor hiding rather than unmounting to avoid re-layout overhead.
+
+
+
+---
+
+TL;DR
+
+Rendering—the act of drawing—is cheap. Layout—the act of measuring and positioning—is expensive. Use techniques like opacity and transforms to avoid costly layout operations and optimize UI performance.
+
+Let me know if you’d like code examples or how to apply this in a React or React Native component!
+
+
+
+ — using opacity or transform to "hide" complex components like modals isn't practical in most real-world apps. Especially when:
 
 The modal does data fetching or init logic
 
