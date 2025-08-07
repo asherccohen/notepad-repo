@@ -385,4 +385,263 @@ This creates a unique narrative experience where **story IS gameplay** - every c
 
 The brilliance is that players never feel like they're choosing from predetermined story branches - they're just commanding units, but their command style organically creates the story.
 
-Would you like me to detail specific command-driven story scenarios or explore how different play styles generate completely different narratives?
+## **Deep Command-Driven Story Examples**
+
+### **Example 1: The Reactor Crisis - Branching Through Technical Commands**
+
+**Initial Situation:**
+```
+> system_status
+CRITICAL ALERT: Reactor core temperature rising - 47 minutes to breach
+AVAILABLE PERSONNEL: 
+  - Engineering Team Delta (5 members, radiation-trained)
+  - Security Squad Gamma (8 members, combat-ready)
+  - Medical Team (3 members, emergency response)
+TACTICAL OPTIONS: Multiple approach vectors to reactor bay
+```
+
+**Path A: Direct Technical Approach**
+```
+> route engineering_delta to reactor_core
+Delta Team Leader Rodriguez: "Direct route through main corridor, sir?"
+> confirm
+Rodriguez: "Copy. We'll need full rad-suits for extended exposure."
+> allocate rad_suits all_delta
+Rodriguez: "Appreciated, Commander. We remember what happened to Beta Team."
+
+[45 minutes later]
+> status
+SUCCESS: Reactor stabilized via manual coolant injection
+CONSEQUENCE: Rodriguez develops rad-sickness, requests medical leave
+CREW_RESPONSE: Engineering teams trust your willingness to provide proper equipment
+STORY_UNLOCK: Rodriguez shares personal logs about Beta Team incident
+FACTION_SHIFT: Engineering crews become "Equipment Loyalists" - performance tied to gear quality
+```
+
+**Path B: Creative Tactical Routing**
+```
+> scan alternate_routes
+FINDING: Maintenance shafts offer indirect access, lower radiation
+> route engineering_delta via maintenance_shaft_7
+Rodriguez: "Clever thinking, sir. Longer route but safer exposure levels."
+> deploy security_gamma as escort
+Rodriguez: "Escort? You expecting trouble down there?"
+> explain "precautionary_measure"
+Rodriguez: "Fair enough. After the vine incidents, can't be too careful."
+
+[52 minutes later - closer to deadline]
+SUCCESS: Reactor stabilized, zero casualties
+CREW_RESPONSE: Teams appreciate creative problem-solving
+STORY_UNLOCK: Discovery of hidden maintenance network with pre-crisis supply caches
+FACTION_SHIFT: Cross-department cooperation increases - "The Maze Runners" informal group forms
+```
+
+**Path C: Desperate Sacrifice Protocol**
+```
+> priority_override reactor_crisis
+SYSTEM: Priority override engaged. Ethical constraints suspended.
+> route all_available_personnel reactor_zone
+Rodriguez: "Sir... that's 16 people. We only need 5 for the job."
+> execute_order
+Rodriguez: "...understood. All teams, emergency deployment."
+
+[23 minutes later]
+SUCCESS: Reactor stabilized via overwhelming response
+CASUALTIES: 4 radiation injuries, 2 severe
+CREW_RESPONSE: Mixed - respect for decisive action, horror at cost
+STORY_UNLOCK: Secret opposition group "The Conscience" begins forming
+FACTION_SHIFT: Command structure becomes militaristic, questioning loyalty decreases
+```
+
+### **Example 2: First Contact Protocol - Language and Cultural Commands**
+
+**Scenario Setup:**
+```
+> long_range_scan
+DETECTING: Unknown vessel approaching, non-standard configuration
+ENERGY SIGNATURE: Human-derivative technology
+COMMUNICATION ATTEMPT: Receiving transmission...
+TRANSLATION: [PARTIAL] "...seeking... home-waters... trade-gift..."
+
+TACTICAL SITUATION: Unknown capabilities, peaceful intent unclear
+YOUR SHIP STATUS: Weapons online, shields raised (automatic response)
+```
+
+**Diplomatic Path Evolution:**
+```
+> analyze_language_pattern
+LINGUISTIC ANALYSIS: Syntax suggests cultural drift - maritime terminology
+PROBABILITY: Descendants of generation ship "Magellan's Wake" (lost 200 years ago)
+CULTURAL NOTE: Maritime societies value formal greeting protocols
+
+> lower_shields
+Comm Officer Torres: "Sir, lowering shields before identification?"
+> explain "diplomatic_gesture"
+Torres: "Understood. Broadcasting our shield status... they're responding."
+INCOMING: "...gratitude-waves... permission-request... docking-dance?"
+
+> research_command "docking-dance"
+ARCHIVAL SEARCH: Historical protocols...
+FINDING: Pre-crisis Earth naval tradition - ceremonial approach pattern
+TRANSLATION ENHANCED: They're requesting permission to perform formal approach
+
+> grant_ceremonial_approach
+Torres: "Transmitting acceptance of their... docking dance?"
+RESULT: Unknown vessel performs elaborate spiral approach pattern
+CREW_RESPONSE: Fascination with recovered human culture
+STORY_BRANCH: Maritime Protocols unlock new diplomatic command vocabulary
+FACTION_EMERGENCE: "Traditionalists" - crew members interested in recovering old customs
+```
+
+**Aggressive Intercept Path:**
+```
+> battle_stations
+Tactical Officer Kim: "All weapons trained on unknown vessel."
+> hail_target demand_identification
+Kim: "Broadcasting challenge... no standard response, sir."
+> warning_shot
+Kim: "Warning shot fired... they're... dancing?"
+> fire_pattern_analysis
+Kim: "Their movement pattern... it's not evasive. It's ceremonial?"
+> cease_fire
+Kim: "Ceasing fire. Sir, I think we just interrupted some kind of ritual."
+INCOMING: [DISTRESSED HARMONICS] "...harm-not-intended... gift-offering-spoiled..."
+
+CONSEQUENCE: First contact becomes recovery effort - cultural damage to repair
+STORY_BRANCH: Your crew questions aggressive first-contact protocols
+FACTION_EMERGENCE: "Peace Advocates" - crew members pushing for revised engagement rules
+TACTICAL_CHANGE: Future unknown contacts require explicit engagement authorization
+```
+
+### **Example 3: The Memory Archive - Information Warfare Through Commands**
+
+**Discovery Phase:**
+```
+> explore_sector_7g
+Squad Alpha discovers sealed chamber containing quantum storage arrays
+Sgt. Chen: "Commander, these storage units... they're massive. Pre-crisis tech."
+> scan_storage_arrays
+ANALYSIS: Contains comprehensive historical records - pre-diaspora Earth
+WARNING: Also detecting active security protocols
+> attempt_access
+SECURITY_CHALLENGE: Biometric verification required
+DETECTING: Multiple command authorization patterns needed simultaneously
+```
+
+**Knowledge Sharing Path:**
+```
+> broadcast_find ship_wide
+Announcer: "All crew, report to briefing stations. Historical discovery announced."
+> open_archive_access
+Archive AI: "Multiple authorization detected. Initializing public access mode."
+DOWNLOADING: Complete Earth historical database, pre-crisis civilization records
+CREW_RESPONSE: Overwhelming excitement, some existential crisis reactions
+Dr. Yates (Historian): "Commander, this changes everything. Our entire mission context..."
+
+[3 days later]
+FACTION_SPLIT: 
+  - "Rebuilders" - want to use knowledge to recreate Earth civilization
+  - "Transcendents" - believe knowledge proves need to evolve beyond Earth legacy
+  - "Guardians" - think knowledge is too dangerous for general population
+TACTICAL_CONSEQUENCE: Crew efficiency drops 15% due to philosophical debates
+STORY_BRANCH: Must mediate between competing visions of human future
+```
+
+**Selective Knowledge Path:**
+```
+> restrict_archive_access command_staff_only
+Archive AI: "Authorization hierarchy established. Command-level access granted."
+> review_sensitive_information
+CLASSIFIED FINDING: Earth's destruction was intentional - civil war, not environmental collapse
+CLASSIFIED FINDING: Diaspora ships were designed with hidden conflict protocols
+> compartmentalize_data
+System: "Data compartmentalized. Access limited to Command-level authorization."
+> brief_department_heads selective_information
+Result: Only tactical and technical data shared, political history withheld
+
+[Ongoing consequences]
+CREW_BEHAVIOR: Trust in leadership increases (appear wise and informed)
+HIDDEN_TENSION: Department heads realize information is being withheld
+STORY_BRANCH: Information becomes power - who gets access shapes faction formation
+TACTICAL_ADVANTAGE: Knowledge of ship's hidden systems provides strategic options
+```
+
+**Destruction Path:**
+```
+> analyze_archive_security
+FINDING: Archive has self-destruct capability if tampered with incorrectly
+> intentional_trigger_destruction
+Archive AI: "Destruction protocol? This will erase irreplaceable human heritage."
+> confirm_destruction "too_dangerous"
+Archive AI: "...acknowledged. Civilization record terminating."
+RESULT: All historical data destroyed, but crew never learns what was lost
+
+IMMEDIATE_RESPONSE: Crew confused about discovery significance
+LONG_TERM: History remains mystery, crew develops mythology around "the lost vault"
+FACTION_EMERGENCE: "Seekers" - obsessed with finding other archives
+TACTICAL_CONSEQUENCE: No historical knowledge advantages, but no divisive information
+STORY_BRANCH: Mystery-driven narrative - what was worth destroying?
+```
+
+### **Example 4: Resource Crisis - Economic Commands Drive Cultural Evolution**
+
+**Scarcity Simulation:**
+```
+> resource_audit
+CRITICAL SHORTAGE: Protein synthesis raw materials - 23 days remaining
+RATIONING STATUS: Currently at 85% normal allocation
+MORALE IMPACT: Crew complaints increasing, work efficiency declining
+AVAILABLE OPTIONS: Multiple resource reallocation strategies possible
+```
+
+**Democratic Resource Management:**
+```
+> convene_crew_council
+Council Representative Santos: "We need transparent resource allocation, Commander."
+> implement_voting_system resource_priorities
+Santos: "Crew votes: 40% medical, 35% essential systems, 25% morale/recreation"
+> execute_voted_allocation
+Result: Democratic resource distribution based on crew priorities
+
+CONSEQUENCE: Crew feels empowered and trusts leadership decisions
+FACTION_EMERGENCE: "The Assembly" - crew members who prefer collective decision-making
+TACTICAL_EFFECT: Slower decision-making but higher morale and compliance
+COMMAND_EVOLUTION: Future resource decisions require crew input or morale penalty
+STORY_BRANCH: Democratic space society development path
+```
+
+**Hierarchical Efficiency Path:**
+```
+> implement_strict_rationing command_priority
+System: "Command staff receives full allocation, crew receives 60% allocation"
+> justify_decision "essential_personnel_protection"
+Crew response: Grumbling but compliance - leadership seen as necessary burden
+
+[2 weeks later]
+> optimize_work_efficiency priority_roles
+Result: Essential personnel maintain performance, others show declining productivity
+FACTION_EMERGENCE: "Command Loyal" vs "Labor Solidarity" groups
+TACTICAL_ADVANTAGE: Fast decision-making, maintained essential operations
+SOCIAL_COST: Increased security requirements, potential for uprising
+STORY_BRANCH: Authoritarian efficiency vs human dignity conflicts
+```
+
+**Innovation Incentive Path:**
+```
+> announce_innovation_bounty
+"Extra rations for crew members developing resource efficiency solutions"
+> establish_research_teams voluntary_basis
+Response: 12 crew members volunteer for research teams
+> allocate_resources_to_research 15%_current_stocks
+Dr. Park: "Risky allocation, but we'll make it count."
+
+[Outcome possibilities based on random + previous decisions]
+SUCCESS: Breakthrough in algae cultivation - food crisis solved permanently
+PARTIAL: Efficiency improvements extend timeline by 60%
+FAILURE: Resources consumed with no breakthrough - crisis accelerated
+CREW_RESPONSE: Regardless of outcome, appreciate being trusted with solution
+FACTION_EMERGENCE: "Innovators" - crew focused on technological solutions
+STORY_BRANCH: Technology-driven society development path
+```
+
+These examples show how **every command becomes a character-building moment**, where tactical decisions organically generate narrative consequences that reshape future available commands and crew responses. The player never feels like they're "choosing story options" - they're just trying to solve tactical problems, but their approach creates emergent storytelling.
