@@ -492,3 +492,430 @@ A specialized agent that:
 - Pattern recognition from decision history
 - Proactive decision support
 - Advanced analytics and insights
+
+# Decoupled Multi-Agent System Architecture
+
+## Core Principles
+
+The system operates on **metadata-driven orchestration** where:
+- Agents are defined by their capabilities and constraints, not hardcoded workflows
+- The orchestrator dynamically determines consultation patterns based on agent metadata
+- New agents can be added without changing orchestration logic
+- Workflows emerge from agent capabilities rather than predefined patterns
+
+## Agent Definition Schema
+
+### Base Agent Metadata
+```typescript
+interface AgentDefinition {
+  id: string;
+  name: string;
+  description: string;
+  
+  // Capability Declaration
+  capabilities: {
+    domains: string[];           // ["engineering", "security", "legal"]
+    expertise: string[];         // ["code-review", "architecture", "compliance"]
+    keywords: string[];          // ["deployment", "GDPR", "team-capacity"]
+    confidence_threshold: number; // 0.0 - 1.0
+  };
+  
+  // Operational Constraints
+  constraints: {
+    max_response_time_ms: number;
+    requires_human_escalation_for: string[];
+    cannot_make_decisions_about: string[];
+    needs_collaboration_for: string[];
+  };
+  
+  // Interaction Rules
+  collaboration: {
+    must_consult: string[];      // Agent IDs this agent always needs input from
+    can_consult: string[];       // Agent IDs this agent may consult
+    provides_input_to: string[]; // Agent IDs that may request input from this agent
+    synthesis_weight: number;    // How much weight this agent's input carries (0.0-1.0)
+  };
+  
+  // Context Requirements
+  context_needs: {
+    required_data: string[];     // ["user_role", "project_context", "compliance_region"]
+    optional_data: string[];
+    memory_scope: "conversation" | "user" | "global";
+  };
+}
+```
+
+### Agent Capability Declaration Examples
+
+```typescript
+const engineeringManagerAgent: AgentDefinition = {
+  id: "eng-manager",
+  name: "Engineering Manager",
+  description: "Handles technical decisions, team coordination, and development processes",
+  
+  capabilities: {
+    domains: ["engineering", "project-management", "technical-architecture"],
+    expertise: ["code-review", "sprint-planning", "technical-debt", "team-capacity"],
+    keywords: ["deployment", "architecture", "code", "sprint", "team", "technical", "development"],
+    confidence_threshold: 0.8
+  },
+  
+  constraints: {
+    max_response_time_ms: 5000,
+    requires_human_escalation_for: ["budget-over-50k", "team-restructuring"],
+    cannot_make_decisions_about: ["legal-compliance", "hr-policies"],
+    needs_collaboration_for: ["security-architecture", "legal-requirements"]
+  },
+  
+  collaboration: {
+    must_consult: ["security-agent"],
+    can_consult: ["hr-agent", "legal-agent", "product-manager"],
+    provides_input_to: ["product-manager", "security-agent"],
+    synthesis_weight: 0.9
+  },
+  
+  context_needs: {
+    required_data: ["user_role", "current_project"],
+    optional_data: ["team_size", "sprint_context"],
+    memory_scope: "conversation"
+  }
+};
+
+const legalAgent: AgentDefinition = {
+  id: "legal-agent",
+  name: "Legal & Compliance Advisor",
+  description: "Provides legal guidance and compliance requirements",
+  
+  capabilities: {
+    domains: ["legal", "compliance", "data-privacy", "contracts"],
+    expertise: ["GDPR", "contract-interpretation", "liability", "IP-rights"],
+    keywords: ["legal", "compliance", "GDPR", "contract", "privacy", "liability"],
+    confidence_threshold: 0.9
+  },
+  
+  constraints: {
+    max_response_time_ms: 10000,
+    requires_human_escalation_for: ["contract-signing", "legal-disputes", "new-regulations"],
+    cannot_make_decisions_about: ["technical-implementation", "team-management"],
+    needs_collaboration_for: ["technical-security-implementation"]
+  },
+  
+  collaboration: {
+    must_consult: [],
+    can_consult: ["security-agent"],
+    provides_input_to: ["eng-manager", "product-manager", "security-agent"],
+    synthesis_weight: 1.0
+  },
+  
+  context_needs: {
+    required_data: ["compliance_region", "customer_type"],
+    optional_data: ["contract_context"],
+    memory_scope: "global"
+  }
+};
+```
+
+## Dynamic Orchestration Engine
+
+### Query Analysis & Agent Selection
+
+```typescript
+interface QueryAnalysis {
+  domains: string[];
+  keywords: string[];
+  complexity_score: number;
+  urgency: "low" | "medium" | "high";
+  estimated_agents_needed: number;
+}
+
+interface AgentSelectionResult {
+  primary_agents: string[];      // Must be consulted
+  secondary_agents: string[];    // Should be consulted if time permits
+  collaboration_chains: Array<{  // Required agent-to-agent consultations
+    from: string;
+    to: string;
+    reason: string;
+  }>;
+  synthesis_strategy: "consensus" | "weighted" | "hierarchical" | "expert";
+}
+
+class DynamicOrchestrator {
+  constructor(private agents: Map<string, AgentDefinition>) {}
+
+  analyzeQuery(query: string, context: any): QueryAnalysis {
+    // NLP analysis to extract domains and keywords
+    // Complexity scoring based on cross-domain requirements
+    // Urgency detection from language patterns
+  }
+
+  selectAgents(analysis: QueryAnalysis): AgentSelectionResult {
+    const candidates = this.findCandidateAgents(analysis);
+    const selected = this.optimizeAgentSelection(candidates, analysis);
+    const collaborations = this.planCollaborations(selected);
+    
+    return {
+      primary_agents: selected.primary,
+      secondary_agents: selected.secondary,
+      collaboration_chains: collaborations,
+      synthesis_strategy: this.determineSynthesisStrategy(selected)
+    };
+  }
+
+  private findCandidateAgents(analysis: QueryAnalysis): AgentMatch[] {
+    return Array.from(this.agents.values()).map(agent => ({
+      agent_id: agent.id,
+      domain_match: this.calculateDomainOverlap(analysis.domains, agent.capabilities.domains),
+      keyword_match: this.calculateKeywordOverlap(analysis.keywords, agent.capabilities.keywords),
+      confidence_score: this.calculateConfidenceScore(analysis, agent)
+    })).filter(match => match.domain_match > 0.1 || match.keyword_match > 0.3);
+  }
+}
+```
+
+### Execution Engine
+
+```typescript
+interface ExecutionPlan {
+  phases: ExecutionPhase[];
+  fallback_strategy: string;
+  max_execution_time_ms: number;
+}
+
+interface ExecutionPhase {
+  phase_id: string;
+  agents: string[];
+  execution_type: "parallel" | "sequential" | "conditional";
+  dependencies: string[];  // Previous phase IDs that must complete
+  timeout_ms: number;
+}
+
+class ExecutionEngine {
+  async executeQuery(
+    query: string, 
+    context: any, 
+    agents: Map<string, AgentDefinition>
+  ): Promise<SynthesizedResponse> {
+    
+    // 1. Dynamic Planning
+    const analysis = this.orchestrator.analyzeQuery(query, context);
+    const selection = this.orchestrator.selectAgents(analysis);
+    const plan = this.createExecutionPlan(selection);
+    
+    // 2. Execute Phases
+    const phaseResults = new Map<string, AgentResponse[]>();
+    
+    for (const phase of plan.phases) {
+      const results = await this.executePhase(phase, phaseResults, context);
+      phaseResults.set(phase.phase_id, results);
+    }
+    
+    // 3. Dynamic Synthesis
+    return await this.synthesizeResponses(phaseResults, selection.synthesis_strategy);
+  }
+
+  private async executePhase(
+    phase: ExecutionPhase, 
+    previousResults: Map<string, AgentResponse[]>,
+    context: any
+  ): Promise<AgentResponse[]> {
+    
+    switch (phase.execution_type) {
+      case "parallel":
+        return await this.executeParallel(phase.agents, context);
+      
+      case "sequential":
+        return await this.executeSequential(phase.agents, context, previousResults);
+      
+      case "conditional":
+        return await this.executeConditional(phase.agents, context, previousResults);
+    }
+  }
+}
+```
+
+## Agent Registry & Discovery
+
+```typescript
+class AgentRegistry {
+  private agents = new Map<string, AgentDefinition>();
+  private agentInstances = new Map<string, any>();
+
+  register(definition: AgentDefinition, implementation: any) {
+    this.agents.set(definition.id, definition);
+    this.agentInstances.set(definition.id, implementation);
+    this.updateCapabilityIndex();
+  }
+
+  findAgentsByCapability(domain: string, expertise?: string): AgentDefinition[] {
+    return Array.from(this.agents.values()).filter(agent => 
+      agent.capabilities.domains.includes(domain) &&
+      (!expertise || agent.capabilities.expertise.includes(expertise))
+    );
+  }
+
+  getCollaborationNetwork(): CollaborationGraph {
+    // Build graph of agent relationships for visualization and planning
+    const graph = new Map<string, Set<string>>();
+    
+    for (const agent of this.agents.values()) {
+      const connections = new Set([
+        ...agent.collaboration.must_consult,
+        ...agent.collaboration.can_consult
+      ]);
+      graph.set(agent.id, connections);
+    }
+    
+    return graph;
+  }
+}
+```
+
+## Dynamic Synthesis Strategies
+
+The system automatically chooses synthesis approaches based on agent metadata:
+
+```typescript
+interface SynthesisStrategy {
+  name: string;
+  condition: (agents: AgentDefinition[], responses: AgentResponse[]) => boolean;
+  synthesize: (responses: AgentResponse[], context: any) => Promise<SynthesizedResponse>;
+}
+
+const synthesisStrategies: SynthesisStrategy[] = [
+  {
+    name: "expert_override",
+    condition: (agents, responses) => 
+      responses.some(r => agents.find(a => a.id === r.agent_id)?.collaboration.synthesis_weight === 1.0),
+    synthesize: async (responses, context) => {
+      // Give full weight to agents with synthesis_weight = 1.0 (like legal)
+      const expertResponses = responses.filter(r => /* high weight agents */);
+      return combineExpertResponses(expertResponses);
+    }
+  },
+  
+  {
+    name: "weighted_consensus",
+    condition: (agents, responses) => responses.length > 2 && !hasConflicts(responses),
+    synthesize: async (responses, context) => {
+      // Weight responses by agent synthesis_weight
+      return weightedCombination(responses, agents);
+    }
+  },
+  
+  {
+    name: "conflict_resolution",
+    condition: (agents, responses) => hasConflicts(responses),
+    synthesize: async (responses, context) => {
+      // Present options with trade-offs when agents disagree
+      return presentOptions(responses, context);
+    }
+  }
+];
+```
+
+## Usage Examples
+
+### Adding New Agents
+```typescript
+// Define a new agent without changing orchestration code
+const financeAgent: AgentDefinition = {
+  id: "finance-agent",
+  name: "Finance & Budget Advisor",
+  description: "Handles budget, cost analysis, and financial decisions",
+  
+  capabilities: {
+    domains: ["finance", "budgeting", "cost-analysis"],
+    expertise: ["budget-approval", "roi-analysis", "cost-optimization"],
+    keywords: ["budget", "cost", "money", "ROI", "financial"],
+    confidence_threshold: 0.85
+  },
+  
+  constraints: {
+    max_response_time_ms: 7000,
+    requires_human_escalation_for: ["budget-over-100k"],
+    cannot_make_decisions_about: ["technical-implementation"],
+    needs_collaboration_for: ["large-purchases"]
+  },
+  
+  collaboration: {
+    must_consult: [],
+    can_consult: ["eng-manager", "hr-agent"],
+    provides_input_to: ["eng-manager", "product-manager"],
+    synthesis_weight: 0.8
+  },
+  
+  context_needs: {
+    required_data: ["department", "current_budget"],
+    optional_data: ["project_timeline"],
+    memory_scope: "user"
+  }
+};
+
+// Register the new agent
+registry.register(financeAgent, new FinanceAgentImplementation());
+```
+
+### Query Execution
+```typescript
+// System automatically determines which agents to use
+const query = "Should we upgrade our CI/CD infrastructure to support 50+ developers?";
+
+// The orchestrator will automatically:
+// 1. Detect this needs: engineering (infrastructure), finance (cost), HR (team size)
+// 2. Route to: eng-manager, finance-agent, hr-agent
+// 3. Plan collaboration: eng-manager consults finance-agent for cost implications
+// 4. Synthesize: weighted combination with expert input from finance on budget impact
+
+const response = await executionEngine.executeQuery(query, userContext, registry.getAll());
+```
+
+## Benefits of This Architecture
+
+### Complete Decoupling
+- Orchestrator has zero knowledge of specific agents
+- New agents plug in seamlessly
+- Workflows emerge from agent capabilities
+- No hardcoded business logic in orchestration layer
+
+### Flexible Collaboration
+- Agents declare their own collaboration needs
+- System automatically builds collaboration chains
+- Dynamic discovery of optimal agent combinations
+
+### Metadata-Driven Intelligence
+- Agent selection based on capability matching
+- Automatic synthesis strategy selection
+- Context-aware execution planning
+
+### Easy Scaling
+- Add new domains by adding agents
+- Modify agent capabilities without code changes
+- A/B test different agent configurations
+
+### Maintainability
+- Clear separation of concerns
+- Agent logic isolated from orchestration
+- Declarative agent definitions
+- Easy debugging and monitoring
+
+## Implementation Strategy
+
+### Phase 1: Core Framework (2-3 weeks)
+- Agent registry and definition schema
+- Basic dynamic orchestrator
+- Simple parallel execution
+- Weighted synthesis
+
+### Phase 2: Advanced Orchestration (3-4 weeks)
+- Complex collaboration planning
+- Sequential and conditional execution
+- Multiple synthesis strategies
+- Context management
+
+### Phase 3: Intelligence Layer (4-6 weeks)
+- Machine learning for agent selection optimization
+- Performance analytics
+- Dynamic capability adjustment
+- Self-improving orchestration
+
+This architecture gives you maximum flexibility while maintaining clean separation of concerns. The system becomes truly pluggable - you can add new agents, modify capabilities, or change collaboration patterns just by updating metadata.
