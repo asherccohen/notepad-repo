@@ -919,3 +919,265 @@ const response = await executionEngine.executeQuery(query, userContext, registry
 - Self-improving orchestration
 
 This architecture gives you maximum flexibility while maintaining clean separation of concerns. The system becomes truly pluggable - you can add new agents, modify capabilities, or change collaboration patterns just by updating metadata.
+
+# Multi-Agent System: Problems, Weaknesses & Edge Cases
+
+## Critical Architectural Problems
+
+### 1. Emergent Complexity & Unpredictability
+
+**Problem**: Dynamic agent selection and collaboration can create unpredictable behavior patterns
+- **Circular Dependencies**: Agent A needs Agent B, Agent B needs Agent C, Agent C needs Agent A
+- **Collaboration Explosions**: Simple queries triggering excessive agent consultations
+- **Non-Deterministic Responses**: Same query giving different answers based on agent availability/timing
+- **Cascade Failures**: One agent failure causing entire consultation chain to break
+
+**Edge Cases**:
+```
+Query: "Can we deploy on Friday?"
+- Engineering Agent consults Security Agent
+- Security Agent consults Legal Agent  
+- Legal Agent consults HR Agent (deployment policy)
+- HR Agent consults Engineering Agent (team availability)
+- Result: Infinite consultation loop
+```
+
+### 2. Context Explosion & Memory Management
+
+**Problem**: Agent context requirements create exponential data complexity
+- **Context Conflicts**: Agent A needs global context, Agent B needs conversation-only context
+- **Memory Leakage**: Agents accumulating context data indefinitely
+- **Context Staleness**: Agents working with outdated information
+- **Privacy Boundaries**: Different agents having access to different context levels
+
+**Edge Cases**:
+```
+Legal Agent requires: customer_contract_context (sensitive)
+HR Agent requires: employee_performance_context (sensitive)  
+Engineering Agent requires: technical_debt_context (internal)
+Query touches all domains → Context access conflicts
+```
+
+### 3. Synthesis Conflicts & Decision Deadlocks
+
+**Problem**: Multiple agents providing contradictory advice with no clear resolution
+- **Equal Authority Conflicts**: Two agents with same synthesis_weight disagree
+- **Incomplete Information**: Each agent has partial information leading to different conclusions
+- **Timing Dependencies**: Agent responses changing based on when they're consulted
+- **Authority Ambiguity**: Unclear which agent has final say in edge cases
+
+**Edge Cases**:
+```
+Query: "Should we use microservices for the new feature?"
+Engineering Agent: "No - adds complexity, team too small"
+Security Agent: "Yes - better isolation and security boundaries"  
+Product Agent: "Yes - faster feature delivery"
+Finance Agent: "No - higher infrastructure costs"
+→ Synthesis deadlock with no clear winner
+```
+
+## Operational Weaknesses
+
+### 4. Performance & Latency Issues
+
+**Problem**: Multiple agent consultations create unacceptable response times
+- **Sequential Bottlenecks**: Agent collaboration chains causing delays
+- **Parallel Overhead**: Too many simultaneous agent calls overwhelming system
+- **LLM Rate Limits**: Hitting API limits with multiple agent calls
+- **Network Latency**: Agent-to-agent communication adding delays
+
+**Real-World Impact**:
+```
+Developer asks urgent deployment question during incident
+→ System consults 5 agents in sequence  
+→ 30+ second response time
+→ Developer gives up and makes decision without system
+```
+
+### 5. Cost Explosion
+
+**Problem**: Every query potentially triggers multiple expensive LLM calls
+- **Token Cost Multiplication**: Each agent call costs tokens
+- **Context Duplication**: Same context sent to multiple agents
+- **Failed Synthesis Retries**: Multiple attempts to resolve conflicts
+- **Agent Chaining**: One agent calling another multiplying costs
+
+**Cost Example**:
+```
+Simple query: "What's our code review policy?"
+Without system: 1 LLM call (~1000 tokens) = $0.002
+With system: Orchestrator + Engineering Agent + Policy Check + Synthesis  
+= 4 LLM calls (~8000 tokens) = $0.016
+8x cost increase for routine questions
+```
+
+### 6. Reliability & Failure Handling
+
+**Problem**: Distributed system failures create complex failure modes
+- **Agent Unavailability**: What happens when key agents are down?
+- **Partial Failures**: Some agents respond, others timeout
+- **Inconsistent State**: Agents having different views of current state
+- **Graceful Degradation**: How to maintain service when agents fail?
+
+**Failure Scenarios**:
+```
+Legal Agent is down during compliance question
+→ Engineering Agent can't get legal clearance
+→ Either block developer (bad UX) or proceed without legal input (risky)
+→ No clear fallback strategy
+```
+
+## Business & Organizational Problems
+
+### 7. Accountability & Liability
+
+**Problem**: Complex multi-agent decisions make it hard to assign responsibility
+- **Decision Traceability**: Hard to understand why system made specific recommendation
+- **Blame Attribution**: When AI gives bad advice, which agent/person is responsible?
+- **Audit Complexity**: Regulatory audits become much more complex
+- **Legal Liability**: Who's liable when AI agents make costly mistakes?
+
+**Real Scenario**:
+```
+AI system approves architecture decision that later causes security breach
+Legal Agent said "compliant"
+Security Agent said "acceptable risk"  
+Engineering Agent said "technically sound"
+→ Who is responsible? The AI system? The person who acted on advice? The company?
+```
+
+### 8. Agent Bias & Inconsistency
+
+**Problem**: Different agents having different personalities and biases
+- **Risk Tolerance Variance**: Security agent always says "no", Engineering agent always optimistic
+- **Personality Conflicts**: Agents trained on different data having conflicting worldviews
+- **Context Sensitivity**: Same agent giving different answers based on minor context changes
+- **Training Data Bias**: Agents inheriting biases from their training data
+
+**Example**:
+```
+Security Agent (trained on security incident data): Risk-averse, always recommends maximum security
+Engineering Agent (trained on productivity data): Efficiency-focused, minimizes security overhead
+→ Constant conflict requiring human arbitration, defeating the purpose
+```
+
+### 9. Organizational Change Resistance
+
+**Problem**: People and processes not adapting to AI-mediated decisions
+- **Manager Displacement Anxiety**: Managers feeling threatened by AI making "their" decisions
+- **Developer Skepticism**: Developers not trusting AI advice over human judgment
+- **Process Integration**: Existing workflows not designed for AI intermediation
+- **Cultural Mismatch**: AI decision-making conflicting with company culture
+
+## Technical Edge Cases
+
+### 10. Metadata Inconsistency & Drift
+
+**Problem**: Agent metadata becoming outdated or inconsistent over time
+- **Capability Drift**: Agent actual capabilities diverging from metadata
+- **Organizational Changes**: Company policies changing but agent metadata not updated
+- **Knowledge Staleness**: Agents trained on old information giving outdated advice
+- **Metadata Conflicts**: Different teams maintaining agents with conflicting metadata
+
+**Edge Case**:
+```
+HR Agent metadata says "can handle hiring decisions up to Senior level"
+But recent company policy changed to require VP approval for all Senior+ hires
+Agent doesn't know about policy change → Gives incorrect advice
+```
+
+### 11. Query Ambiguity & Misrouting
+
+**Problem**: Natural language queries are inherently ambiguous
+- **Domain Misclassification**: System routing queries to wrong agents
+- **Context Misinterpretation**: Missing critical context leading to wrong advice  
+- **Scope Creep**: Simple queries expanding into complex multi-domain issues
+- **Intent Misalignment**: System answering different question than user intended
+
+**Example**:
+```
+Query: "Can we ship this feature?"
+Could mean: Legal clearance? Technical readiness? Resource availability? Timeline feasibility?
+System routes to Engineering Agent (technical readiness)
+User actually meant legal/compliance clearance
+→ Wrong advice, potential compliance violation
+```
+
+### 12. Agent Coordination Failures
+
+**Problem**: Agents not coordinating effectively or working at cross-purposes
+- **Information Silos**: Agents not sharing relevant information with each other
+- **Duplicate Work**: Multiple agents researching the same information
+- **Coordination Overhead**: More time spent coordinating than solving problems
+- **Version Conflicts**: Agents working with different versions of information
+
+## Scalability & Maintenance Issues
+
+### 13. Agent Management Complexity
+
+**Problem**: Managing many agents becomes operationally complex
+- **Version Control**: How to update agent capabilities and ensure consistency?
+- **Testing**: How to test all possible agent combinations and interactions?
+- **Monitoring**: How to monitor agent performance and detect degradation?
+- **Configuration Management**: Managing agent metadata across environments
+
+**Operational Reality**:
+```
+50+ agents in production
+Each agent update potentially affects all other agents
+Testing all combinations = 50! possible interaction patterns
+Impossible to test comprehensively
+```
+
+### 14. Knowledge Synchronization
+
+**Problem**: Keeping all agents updated with latest company information
+- **Information Latency**: New policies taking time to propagate to all agents
+- **Inconsistent Updates**: Some agents getting updated information, others don't
+- **Source of Truth**: Multiple agents having different versions of "truth"
+- **Update Conflicts**: Different update cycles causing temporary inconsistencies
+
+### 15. User Experience Degradation
+
+**Problem**: Complex system actually making things harder for users
+- **Decision Paralysis**: Too many options and considerations overwhelming users
+- **Black Box Syndrome**: Users not understanding why system made specific recommendations
+- **Over-Engineering**: Simple questions getting complex, unhelpful answers
+- **Trust Erosion**: System failures reducing user trust in AI assistance
+
+**UX Anti-Pattern**:
+```
+Developer asks: "Should I use useState or useReducer?"
+System consults: Performance Agent, Architecture Agent, Team Standards Agent, Code Review Agent
+Returns: 3-page analysis of state management patterns, team preferences, performance implications
+Developer wanted: Simple 2-sentence answer
+Result: Developer stops using system
+```
+
+## Mitigation Strategies
+
+### Short-term Mitigations
+1. **Circuit Breakers**: Timeout and fallback mechanisms for agent failures
+2. **Confidence Thresholds**: Only multi-agent consultation above complexity threshold
+3. **Human Override**: Easy escalation to human decision-makers
+4. **Cost Controls**: Budget limits and query throttling
+5. **Simple Mode**: Option to get single-agent responses for routine questions
+
+### Long-term Solutions
+1. **Agent Specialization**: Narrow, well-defined agent scopes to reduce conflicts
+2. **Hierarchical Authority**: Clear decision hierarchies to resolve conflicts
+3. **Learning Systems**: Agents that learn from successful/failed decisions
+4. **Hybrid Approach**: AI for information gathering, humans for final decisions
+5. **Gradual Rollout**: Start with low-risk domains and gradually expand
+
+## Fundamental Questions
+
+1. **Is the complexity worth it?** Does multi-agent orchestration actually solve more problems than it creates?
+
+2. **Can emergent behavior be controlled?** Is it possible to predict and manage the behavior of complex agent interactions?
+
+3. **Should some decisions remain human-only?** Are there categories of decisions that should never be delegated to AI systems?
+
+4. **How do we measure success?** What metrics indicate the system is actually helping rather than just creating impressive-looking complexity?
+
+The core tension: **The system's greatest strength (dynamic, flexible agent collaboration) is also its greatest weakness (unpredictable, complex behavior)**.
