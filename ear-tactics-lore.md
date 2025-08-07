@@ -186,3 +186,46 @@ Some questions that might help refine the design:
 - For the posthuman evolution mechanics, how granular do unit transformations get? Can individual soldiers evolve mid-campaign based on exposure to different faction technologies?
 
 The thematic coherence between the existential sci-fi concepts and the tactical gameplay mechanics is really well thought out. This feels like it could deliver both the cerebral satisfaction of classic sci-fi and the strategic depth that tactics game fans expect.
+
+## **Plot Structure Issues**
+
+**Predictable Arc**: The "scattered factions fight, discover shared threat, must unite or transcend" structure is well-worn sci-fi territory. Players will likely anticipate the Earth revelation and convergence ending from Chapter 1.
+
+**Faction Imbalance**: The factions feel more like philosophical archetypes than lived-in societies. The Somnolents especially risk feeling like "emotionless logic race #47" without deeper cultural texture.
+
+**Passive Discovery**: Much of the narrative hinges on *finding* information rather than *creating* dramatic situations. Players might feel like archaeologists rather than active participants in unfolding events.
+
+## **Character & Agency Problems**
+
+**Faceless Protagonist**: The "lone warden" lacks personal stakes. Why should players care about *this* character's choices versus playing as a generic faction leader?
+
+**Predetermined Factions**: Players inherit existing groups rather than shaping them. Limited ability to forge new alliances or create hybrid cultures.
+
+**Binary Moral Choices**: The "preserve/adapt/transcend" framework feels like picking from a menu rather than navigating complex moral terrain.
+
+## **Gameplay-Story Integration Gaps**
+
+**Scale Disconnect**: Grand narrative of humanity's future decided through small tactical skirmishes. Why don't other ships/factions intervene in these crucial battles?
+
+**Resource Abstraction**: "Knowledge" and "memory" as resources sounds cool but risks feeling arbitrary. How do you actually *use* recovered history tactically?
+
+**Command Line Immersion**: Risk of the interface becoming tedious rather than atmospheric, especially during complex multi-front battles.
+
+## **Proposed Solutions**
+
+### **1. Subvert the Structure**
+Instead of "unite against common threat," make the Earth revelation come early (Chapter 1) and be *divisive*. Some factions want to return and rebuild Earth, others see it as a dead weight to shed. The conflict becomes: what does it mean to be human when your birthworld is ash?
+
+### **2. Personal Stakes Through Relationships**
+The protagonist isn't just "a warden" but someone with specific ties to multiple factions - maybe a hybrid, or someone who's lived in several communities. Make faction choices personal betrayals or loyalties.
+
+### **3. Dynamic Faction Evolution** 
+Let players actively reshape factions through tactical decisions. Win too many battles with AI drones? Your human soldiers start questioning their worth. Use too much biotech? Face mutation crises. Factions aren't fixed - they respond to your leadership style.
+
+### **4. Competing Timelines**
+Multiple generation ships are arriving at staggered intervals. Early decisions affect what later arrivals find. Instead of one grand convergence, it's a cascade of first contacts, each shaped by previous encounters.
+
+### **5. Procedural History Discovery**
+Rather than finding predetermined lore dumps, piece together history through environmental storytelling and tactical choices. Did your soldiers loot that medical bay or preserve it? The records you find reflect what previous groups prioritized.
+
+What aspects resonate with you? Should we dive deeper into any of these solution directions?
