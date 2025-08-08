@@ -1,3 +1,69 @@
+Sure! Here's a prompt you can use with an LLM to get a detailed answer based on our conversation:
+
+
+---
+
+Prompt:
+
+I have a Lit web component library using TypeScript 5.8.3 and the new ECMAScript decorators standard. I want to consume this library in a React app locally (importing as a TS module) and remotely (compiled JS module). I’m using Webpack and Babel in my build pipeline.
+
+Problem:
+
+When importing the TS source locally, I get errors about "properties will not trigger updates as expected."
+
+When importing compiled JS remotely, it works fine.
+
+Both the app and the library have aligned tsconfig.json settings with:
+
+{
+  "experimentalDecorators": true,
+  "useDefineForClassFields": false,
+  "emitDecoratorMetadata": false,
+  "target": "ES2022",
+  "module": "ESNext"
+}
+
+I suspect the issue might be related to Babel or the decorator handling in the build.
+
+
+Questions:
+
+1. Is Lit compatible with the new decorators syntax from TypeScript 5+?
+
+
+2. How do I configure TypeScript and Webpack (ts-loader) to work with the new decorators?
+
+
+3. Could Babel be causing the issue, and how should Babel be configured to support the new decorators standard with TypeScript 5+?
+
+
+4. Why does importing the TS source locally cause issues, but importing the compiled JS remotely does not?
+
+
+5. How do I align all these configurations (TypeScript, Babel, Webpack, Lit) so that reactive properties update correctly without errors?
+
+
+
+Context:
+
+Lit 3+ supports the new decorators syntax and recommends importing decorators from 'lit/decorators.js'.
+
+Babel’s @babel/preset-typescript does not transform decorators, so @babel/plugin-proposal-decorators with "version": "2023-01" must be added.
+
+TypeScript 5’s new decorators are incompatible with emitDecoratorMetadata and require useDefineForClassFields to be false to match Lit's reactive properties system.
+
+Babel plugin order matters; decorators plugin must come before class properties plugins.
+
+
+Please provide a detailed explanation of the compatibility issues, necessary build config changes, and the root cause of the problem with TS source imports versus compiled JS imports in this context.
+
+
+---
+
+Let me know if you want me to format it differently or add more!
+
+
+
 Sure! Here’s a concise prompt you can feed to an LLM to get a thorough, accurate answer about your setup:
 
 
