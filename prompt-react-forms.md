@@ -1,3 +1,61 @@
+Sure! Here’s a concise prompt you can use with an LLM to get similar help, including your constraints and the solutions we discussed:
+
+
+---
+
+Prompt:
+
+I’m building complex dependent fields in React forms with the following requirements:
+
+I want to avoid useEffect for setting dependent field state after async data fetches or user input.
+
+I prefer plain React with useState and reducer dispatch event patterns, no useReducer with side effects complexity.
+
+I want a centralized, declarative rule engine expressed as a schema of dependency rules:
+
+Each rule links a source field to one or more target fields.
+
+A compute function derives target field values from source field values and full form state.
+
+
+The rule engine should:
+
+Detect source field changes and update target fields automatically.
+
+Handle both automatic updates (e.g., dropdown options refetched and the dependent dropdown value auto-set if only one option) and manual user-driven changes.
+
+Process all changes (automatic or manual) through a single reducer event handler to keep logic consolidated.
+
+
+I use React Query to fetch schemas/options keyed by a source field (e.g. companyId).
+
+I want to avoid resetting the entire form state (e.g., no key tricks).
+
+I want to avoid using React Hook Form or similar form libraries.
+
+The solution should be easily extensible and keep the dependency logic clean and centralized.
+
+I’m open to a minimal TypeScript implementation showing:
+
+The rules schema type
+
+The reducer logic applying rules after each relevant event
+
+How to dispatch user input and async fetch results through the reducer to apply rules
+
+The hook usage integrating with React state and dispatch
+
+
+
+Can you help me design and implement this kind of rule-driven dependent fields engine for React forms?
+
+
+---
+
+Would you like me to help generate a full working example based on this?
+
+
+
 Sure! Here’s a prompt you can use to get a solid LLM answer on this topic, combining your context and the solutions we discussed:
 
 
