@@ -1,3 +1,61 @@
+Sure! Here's a prompt summary tailored for an LLM to answer your question about writing an ESLint rule enforcing React form components to have specific props, including fixers and advanced suggestions:
+
+
+---
+
+Prompt:
+
+I want to write a custom ESLint rule for React projects that enforces the following:
+
+When a React functional or class component renders a <form> element anywhere in its JSX, it must declare specific props, e.g., onSubmit and formId.
+
+The rule should support:
+
+Functional components with destructured props (e.g., ({ onSubmit, formId }) => ...)
+
+Functional components with typed props (e.g., (props: Props) => ... or React.FC<Props>)
+
+Class components extending React.Component<Props>
+
+
+The rule should detect missing required props in the component's prop signature.
+
+It should provide suggestions with auto-fixers:
+
+For destructured props: automatically add missing props to the destructuring pattern.
+
+For typed props (including class components): suggest manually extending a shared type alias like FormComponentProps that defines required props (because auto-fixing type declarations across files isn’t safe).
+
+
+The rule should use TypeScript parser services and type checking for accurate detection.
+
+Ideally, it should encourage standardization by suggesting the use of a shared type, e.g.:
+
+
+type FormComponentProps = {
+  onSubmit: (e: React.FormEvent) => void
+  formId: string
+}
+
+The fixer should insert missing prop names into destructured function parameters and provide manual suggestions for extending types for typed/class components.
+
+
+---
+
+Would you please provide a complete ESLint rule implementation that covers these cases, including proper metadata (hasSuggestions: true), reporting, and fixer logic? Also include comments on limitations of auto-fixing typed props and suggestions for manual fixes.
+
+
+---
+
+If you want, also include ideas for improving the developer experience, such as detecting and suggesting extending shared prop types, or more advanced fixes.
+
+
+---
+
+This prompt captures the full scope of our conversation and the technical details you need. Want me to help turn this into a ready-to-use ESLint plugin package next?
+
+
+
 // no-render-prefix.js
 
 export default {
