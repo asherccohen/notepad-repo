@@ -1,3 +1,22 @@
+You're a senior fullstack software engineer. I want to build a lightweight devtools-like component documentation system inside my app, similar to Storybook Docs, but minimal and embedded.
+
+Constraints:
+- I'm using Rollup (not Webpack/Vite)
+- Components live in a monorepo
+- I want to colocate a `.md` or `.mdx` file next to each component
+- In dev mode only, I want a sidebar that imports and renders the markdown or MDX content
+- Docs should update on rebuild with zero manual steps
+- Bonus: I might want to auto-generate docs from code with AI
+
+Your task:
+1. Describe the simplest technical setup using Rollup that loads and renders `.mdx` or `.md` as React in dev mode only
+2. Recommend the cleanest way to dynamically import docs per component
+3. Include code snippets for React, Rollup config, and loaders/plugins
+4. Avoid overengineering or complex toolchains
+5. Make it developer-friendly, fast to implement, and low-maintenance
+
+Output: Show only concise explanation + code blocks. No fluff. No analogies. Just engineer-to-engineer.
+
 Sure — here's a clean and focused prompt format you can reuse with any LLM to get a solid, context-aware response to your original question:
 
 
