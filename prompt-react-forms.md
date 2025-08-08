@@ -1,3 +1,41 @@
+Here’s a distilled LLM prompt from our exchange:
+
+
+---
+
+Prompt:
+I’m building a dynamic form system in a React/Remix/TypeScript stack. The backend sends a JSON schema that defines field rules such as minLength, maxLength, and pattern. The requirements are:
+
+1. Schema-driven form validation — schema comes from the backend and should be the single source of truth for validation rules.
+
+
+2. Dependent fields — the value of one field can change the required/optional status or other validation attributes of other fields.
+
+
+3. Form reuse — the same schema sections (e.g., address form) should be reusable in multiple contexts (like domicile vs postal address).
+
+
+
+Given these requirements, is schema-based validation conceptually recommended? How should I handle:
+
+JSON schema parsing and validation at runtime
+
+Conditional logic between fields
+
+Schema reuse across scenarios
+
+UI-only behaviours (show/hide) and async validations that go beyond schema
+
+
+Answer with architectural recommendations and concrete examples relevant to React/Remix/TypeScript.
+
+
+---
+
+Do you want me to also include the key recommendations from our discussion into that prompt so an LLM can both understand and continue the conversation from where we left off?
+
+
+
 Here’s a focused, powerful prompt format to get sharp, engineer-level answers about React form validation patterns and custom validation messages:
 
 
