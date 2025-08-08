@@ -1,3 +1,68 @@
+Here’s your conversation distilled into a clear, ready-to-use LLM prompt so another model can directly give you the integration guidance you wanted:
+
+
+---
+
+Prompt:
+
+> I’m building a Next.js App Router app using next-auth, Drizzle ORM, and PostgreSQL.
+
+Current state:
+
+Authentication uses the CredentialsProvider with a login/register page.
+
+I have a users table in Drizzle and use the session to fetch/store user-specific data (e.g., messages).
+
+JWTs are signed with AUTH_SECRET.
+
+
+Goal:
+
+Replace the CredentialsProvider with Microsoft Entra ID using the azure-ad provider in next-auth.
+
+
+What I need:
+
+1. How to configure the Entra ID provider in next-auth and implement the signIn and jwt callbacks to:
+
+Create a user in my users table if they don’t exist
+
+Retrieve the DB user ID and attach it to the JWT/session
+
+
+
+2. Whether I should remove my login/register UI, and what to replace it with
+
+
+3. Best practice for session structure — should I attach user ID, email, or both?
+
+
+4. How to keep my existing “fetch messages for a user” logic working when identity comes from OAuth instead of credentials
+
+
+5. Any recommended schema changes to users for OAuth (e.g., provider fields)
+
+
+6. How to test and debug the Microsoft Entra ID OAuth flow locally
+
+
+
+Assume:
+
+I’m using TypeScript, Drizzle with PostgreSQL, and the Next.js App Router (not Pages Router)
+
+I want concise, correct TypeScript code snippets for the solution
+
+
+
+
+
+---
+
+Do you want me to now optimize this prompt so the LLM’s answer comes in a step-by-step “playbook” format like the one I gave you earlier? That would make it more implementation-ready.
+
+
+
 Microsoft Entra ID + NextAuth.js + Azure OpenAI + @ai-sdk/azure: Internal Auth Architecture
 
 Context
