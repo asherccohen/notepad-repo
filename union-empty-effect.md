@@ -1,3 +1,13 @@
+Act as a senior TypeScript software engineer experienced with the latest @effect/schema library (version 0.54+). Help me implement schema validation for optional string fields that:
+
+- Normalize empty strings ("") to undefined
+- Validate minLength and maxLength only if the value is defined
+- Provide clean, precise error messages without confusing union errors like "expected undefined, received ..."
+- Use idiomatic, up-to-date effect/schema APIs, avoiding deprecated or incorrect patterns like S.literal(undefined)
+- Provide minimal example code snippets showing the correct usage of S.transformOrFail, unions with S.undefined, and annotations for custom messages
+
+Focus only on the schema definition and validation logic. No unrelated explanations or distractions. Be concise but precise.
+
 Here’s a detailed Confluence-ready document summarizing both problems and their solutions using effect/schema.
 
 
