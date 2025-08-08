@@ -1,3 +1,49 @@
+Sure! Here’s a concise prompt you can feed to an LLM to get a thorough, accurate answer about your setup:
+
+
+---
+
+Prompt:
+
+I am building a Lit web component that internally renders React components. I want to manage styles as follows:
+
+Use Rollup with rollup-plugin-postcss to process all CSS imports (including third-party library CSS), excluding any Lit `css`` tagged literals.
+
+Extract all these styles into a single physical bundle.css file.
+
+In my Lit component, I want to import this bundle.css file directly and assign it to static styles for Shadow DOM styling, e.g.:
+
+import styles from './bundle.css';
+
+static styles = [styles];
+
+I do not want to fetch the CSS at runtime.
+
+I do not use Lit's CSS tagged template literals (`css``).
+
+I want to know:
+
+1. How to configure Rollup and PostCSS to produce a bundled CSS file from imports only.
+
+
+2. Whether it’s possible to import that bundled CSS as a usable style object in Lit without fetching.
+
+
+3. If not, what tooling or plugin can enable importing a CSS file as a CSSStyleSheet suitable for static styles.
+
+
+4. Recommendations for best practice integrating React components inside a Lit Shadow DOM with shared styling.
+
+
+
+
+
+---
+
+This prompt captures your context and exact questions, and will get you a clear, actionable answer.
+
+
+
 Got it — if you're disabling Shadow DOM (i.e., rendering into light DOM), that changes a few things but also simplifies some others — especially around styling and integration with global CSS.
 
 Here’s how to adapt your Lit + React setup accordingly.
