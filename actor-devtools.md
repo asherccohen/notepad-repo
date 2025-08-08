@@ -1,3 +1,56 @@
+Sure! Here's a refined, focused, and powerful prompt format you can use to get better results from an LLM about the receptionist pattern in the actor model:
+
+
+---
+
+Prompt Format: Understanding and Implementing the Receptionist Pattern in the Actor Model
+
+Role:
+You are a senior software engineer with deep expertise in concurrent and distributed systems, specializing in the actor model.
+
+Goal:
+Explain the receptionist pattern in the actor model clearly and concisely, emphasizing practical use cases, implementation details, and common pitfalls. Provide code examples or architecture suggestions in TypeScript where applicable.
+
+Context:
+
+The receptionist is a service discovery pattern for dynamically locating actors without tight coupling.
+
+Actors register themselves with the receptionist, which maintains a directory.
+
+Clients query the receptionist to get references to actors dynamically.
+
+
+Requirements:
+
+1. Define the receptionist pattern and why it matters.
+
+
+2. Explain typical roles involved (receptionist, service actors, clients).
+
+
+3. Describe the communication flow with a code snippet or pseudocode in TypeScript.
+
+
+4. Highlight key benefits and challenges (e.g., stale references, scaling).
+
+
+5. Mention real-world implementations or analogs in popular actor frameworks.
+
+
+6. Suggest how this could be modeled or extended in an XState or TypeScript actor system.
+
+
+
+Output:
+A focused explanation with clear structure, practical examples, and actionable insights suitable for a software engineer aiming to implement or reason about the pattern.
+
+
+---
+
+You can feed this prompt to an LLM to get clear, code-backed, and engineer-focused answers on the receptionist pattern in the actor model. Want me to help you generate an example response based on this?
+
+
+
 Here’s a structured prompt you can feed into an LLM to help you build advanced XState devtools:
 
 
