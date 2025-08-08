@@ -1,0 +1,37 @@
+Here’s your conversation distilled into a single, LLM-friendly prompt:
+
+
+---
+
+Prompt:
+I’m a fullstack engineer using Node.js, React, TypeScript, Next.js, RTK Query, XState, Radix UI, Fastify, tRPC, Supabase, Remix, Shadcn, Cypress, and Playwright.
+
+I asked about building a Webpack plugin and learned:
+
+It’s not hard, but you need to understand Webpack’s Tapable hooks and lifecycle phases.
+
+Plugins operate at the whole-build level; loaders work per file.
+
+Use a plugin if you need global build awareness; use a loader if you just need to transform single files.
+
+
+Then I asked if I can automatically port JavaScript files to TypeScript files.
+I learned:
+
+Yes, partially automated with tools like ts-migrate, ts-morph, or jscodeshift, but type annotations and complex type inference require manual work.
+
+Automatable steps: renaming .js → .ts, converting require to import, adding inferred or any types.
+
+Manual steps: typing dynamic code, handling complex imports, and adding proper type definitions.
+
+Suggested migration strategy: enable checkJs, fix top-level errors, batch rename files, run automated migration, then tighten TS config.
+
+
+Now, answer this:
+Given my stack and knowledge, what’s the most efficient, low-risk workflow to migrate a large JavaScript codebase to TypeScript, while keeping the app in production the whole time?
+
+
+---
+
+Do you want me to make an even more compressed "one-shot" version so an LLM answers with zero context missing?
+
