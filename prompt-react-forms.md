@@ -1,3 +1,37 @@
+Sure! Here’s a prompt you can use to get a solid LLM answer on this topic, combining your context and the solutions we discussed:
+
+
+---
+
+Prompt:
+
+I have a React form component that receives a defaultValues prop to populate its internal form state. In some cases, these defaultValues change dynamically—often after an API call triggered by user input (e.g., changing a dropdown triggers a refetch for options). I want the form to update accordingly without losing user input or resetting unrelated fields.
+
+I am not using react-hook-form initially, so I manage form state manually (e.g., useState or useReducer).
+
+How can I best update the form state reactively when defaultValues change asynchronously, without fully resetting the form and losing user edits?
+
+What are good patterns to patch only the relevant fields?
+
+How can I avoid the anti-pattern of blindly overwriting the whole form state on defaultValues change?
+
+
+Also:
+
+If I switch to react-hook-form, how can I make defaultValues reactive so the form updates automatically when they change asynchronously?
+
+Are there built-in hooks or props in the latest react-hook-form that handle this use case cleanly?
+
+
+Please provide clear examples using useState or useReducer for manual state management, and explain how to use the values prop and resetOptions in react-hook-form for reactive updates.
+
+
+---
+
+That prompt covers all the key points and will help any LLM or engineer give you a targeted, useful answer. Want me to help draft a snippet or test case for your specific stack?
+
+
+
 Here’s a distilled LLM prompt from our exchange:
 
 
