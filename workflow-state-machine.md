@@ -1,3 +1,39 @@
+Here’s a refined prompt you can use to get focused, engineer-level answers about building an LLM agent orchestration backend:
+
+
+---
+
+Prompt:
+
+> You are a senior software engineer expert in building backend orchestration systems for LLM agents and workflows.
+
+I want to design a backend execution engine for agent workflows represented as directed acyclic graphs (DAGs). Each node is an LLM or tool call, possibly long-running and streaming output. The engine must execute nodes respecting dependencies, maintain runtime state (idle, running, success, error), and support streaming partial outputs to clients in real time.
+
+Describe, in detail and with example data structures and pseudocode, how you would build such an engine:
+
+Representing the graph and execution state
+
+Scheduling and running nodes in topological order
+
+Supporting extensible “node runners” (LLM calls, HTTP calls, etc.)
+
+Streaming token-level outputs asynchronously
+
+Emitting runtime events for client consumption
+
+
+Focus on backend design, orchestration patterns, and runtime models.
+Write clearly and use technical language.
+
+
+
+
+---
+
+If you want, I can help you craft a version tuned for other parts (e.g., frontend integration, retry policies, etc.) too.
+
+
+
 Here’s a detailed prompt you can use with any LLM to scaffold your resilient, extensible, resumable workflow engine.
 
 You can copy-paste this directly into a codegen LLM, or use it in a repo README/spec file to onboard contributors.
