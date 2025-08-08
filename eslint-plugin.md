@@ -1,3 +1,42 @@
+Sure! Here's a prompt you could give to an LLM to get the same detailed answer we built together:
+
+
+---
+
+Prompt:
+
+I want to write a custom ESLint rule for a TypeScript React project to prevent unsafe usage of potentially undefined or null variables inside template literals or string concatenations. Specifically:
+
+The rule should detect when a variable interpolated inside a template string or concatenated with a string can be undefined or null based on TypeScript types.
+
+It should ignore safe cases, such as literals, constants initialized with literals, or expressions with explicit fallbacks like ??, ||, or ternary expressions with literal fallbacks.
+
+The rule should also allow configuring ignored functions (e.g., console.log, logger.info) where this check is skipped.
+
+When the rule finds an unsafe interpolation, it should report it and suggest an autofix to add a fallback like ?? 'unknown'.
+
+The solution must rely on TypeScript's type checker through @typescript-eslint/utils and handle AST nodes accordingly.
+
+Avoid using context.getScope() since it's not available in this environment; instead, use the TypeScript API to verify if an identifier is a constant literal.
+
+Provide the full working ESLint rule code with correct usage of context.options and no context.getScope().
+
+Include the handling of template literals and string concatenations (+ operator).
+
+The rule should skip reporting if the expression already uses a fallback.
+
+Show how to extract type information and check for possible null or undefined types using TypeScript's TypeFlags.
+
+
+Please provide a complete ESLint rule implementation in TypeScript using @typescript-eslint/utils that meets these criteria, including comments explaining key parts.
+
+
+---
+
+That prompt captures your question, the improvements, and the final correct code approach we arrived at. Want me to help you polish it or generate tests for this?
+
+
+
 Sure! Here's a prompt summary tailored for an LLM to answer your question about writing an ESLint rule enforcing React form components to have specific props, including fixers and advanced suggestions:
 
 
