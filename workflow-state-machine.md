@@ -1,3 +1,63 @@
+Here’s a condensed prompt-ready version of what you asked and the context we covered:
+
+
+---
+
+Prompt:
+
+You are both a UX/UI expert and an AI full-stack engineer.
+You are designing an app that allows users to inspect and monitor LLM workflows.
+
+The app should let users:
+
+View operations and operational logs
+
+Start, interrupt, and pause operations
+
+
+Break down:
+
+1. How such a tool can work — architecture, core components, and data flow.
+
+
+2. Edge cases to consider — reliability, performance, error handling.
+
+
+3. Technology choices — front-end, back-end, streaming, state management, and storage.
+
+
+
+Include in your reasoning:
+
+A real-time dashboard showing all LLM operations with status, timestamps, and summaries.
+
+Operation detail pages with inputs, outputs, timestamps, resource usage, and step-by-step traces.
+
+Live log streaming with token-level updates and API/tool invocation traces.
+
+UI that supports filtering, sorting, and hierarchical trace exploration.
+
+Color-coded error logs and inline JSON viewing.
+
+
+Tech constraints and preferences:
+
+Backend: Node.js, Fastify, PostgreSQL (Drizzle ORM), Redis, BullMQ or Temporal.io, tRPC
+
+Frontend: Next.js (App Router), TypeScript, Radix UI, shadcn/ui, Tailwind, RTK Query, XState, react-virtuoso
+
+Streaming: WebSockets or tRPC subscriptions
+
+Auth: next-auth, Clerk, or Supabase
+
+
+
+---
+
+If you want, I can now give you the same thing but tuned as a system prompt so an LLM would always respond in that combined UX/UI + AI engineer role. Would you like me to create that?
+
+
+
 Here’s a refined prompt you can use to get focused, engineer-level answers about building an LLM agent orchestration backend:
 
 
