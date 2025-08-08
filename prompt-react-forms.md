@@ -1,3 +1,41 @@
+Here’s a focused, powerful prompt format to get sharp, engineer-level answers about React form validation patterns and custom validation messages:
+
+
+---
+
+Prompt:
+
+> Act as a senior software engineer specializing in React and TypeScript forms.
+I want you to analyze best practices and patterns from leading form libraries like React Hook Form and Conform.
+Focus on:
+
+validation triggers (blur vs change vs submit)
+
+submission strategies (submit-on-change vs submit-button, external submit buttons)
+
+client-side validation architecture and error handling
+
+integrating native browser validation messages with React state, including pros and cons
+
+schema-first validation patterns and progressive enhancement
+
+accessibility best practices and dynamic fields handling
+
+
+Provide clear, concise explanations and practical code snippets in TypeScript with React.
+Avoid generic platitudes. Prioritize actionable patterns and trade-offs.
+Highlight where native browser APIs fit versus when full library integration is needed.
+
+
+
+
+---
+
+Want me to help you turn this into a reusable prompt template?
+
+
+
+
 Sure! Here's a refined, focused prompt format you can use to get clear, expert-level responses like the one above:
 
 
