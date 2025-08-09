@@ -1,3 +1,75 @@
+Here’s a condensed LLM-ready prompt that captures all your requirements and the context we’ve built so far, with enhanced details from the answers I gave:
+
+
+---
+
+Prompt:
+I am building custom ESLint rules to help React developers adopt a state-machine and actor-model architecture for state management. I need clear, TypeScript-based ESLint rule implementations and configuration guidance.
+
+The ESLint rules must enforce the following:
+
+1. Encourage discriminated unions for state
+
+When using useState, suggest using a discriminated union instead of primitive types (string, number, boolean).
+
+
+
+2. Disallow direct setState calls in useEffect
+
+Prevent updating state directly inside useEffect hooks to avoid implicit side effects.
+
+
+
+3. Enforce event-driven state transitions
+
+Require state transitions to be triggered only from event callbacks (e.g., handlers like handleClick), never from useEffect.
+
+State transitions should be defined as events, and not all events must cause state changes (some can trigger side effects).
+
+
+
+4. Allow extended/contextual state
+
+Permit defining extended state as an object to hold contextual data necessary for the state machine (e.g., { count: number }).
+
+
+
+5. Promote actor model structure
+
+Structure state-machine logic as "actors" by moving it into its own custom hook (e.g., useCounterMachine), avoiding inline machine logic in components.
+
+
+
+
+Integration requirements:
+
+Provide an ESLint plugin structure with rules/ and index.ts.
+
+Show how to register these rules in .eslintrc.
+
+Suggest existing plugins that align with these goals (e.g., eslint-plugin-xstate, eslint-plugin-react-hooks).
+
+For XState users, recommend relevant rules like no-inline-implementation, spawn-usage, and invoke-usage.
+
+Ensure the rules work well with TypeScript's type-checking.
+
+
+Output must include:
+
+Full code examples for each rule using @typescript-eslint/utils.
+
+Best practices for integrating with the React ecosystem.
+
+Advice on combining custom rules with existing lint plugins for state machines and the actor model.
+
+
+
+---
+
+Do you want me to also expand this prompt into a combined “custom + existing ESLint rule integration plan” so an LLM can return a ready-to-use plugin in one go? That would make it executable without back-and-forth.
+
+
+
 Sure! Here's a prompt you could give to an LLM to get the same detailed answer we built together:
 
 
