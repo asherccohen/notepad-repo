@@ -1,3 +1,56 @@
+Here’s a condensed “LLM-ready” prompt based on everything we discussed:
+
+
+---
+
+Prompt:
+
+I’m building a Next.js app that connects to PostgreSQL.
+In production, my database is an Azure Database for PostgreSQL instance with Microsoft Entra ID (Azure AD) authentication. I don’t want to store a static password in environment variables; instead, I want to authenticate using a Microsoft Entra ID access token obtained with @azure/identity (e.g., DefaultAzureCredential).
+
+I’m using the postgres npm package (not pg) for database connections, and I know that I can set password to the token value at runtime, like:
+
+const tokenResponse = await credential.getToken('https://ossrdbms-aad.database.windows.net');
+const sql = postgres({
+  host: 'my-db-host.postgres.database.azure.com',
+  port: 5432,
+  username: 'my-entra-username@tenant-id',
+  password: tokenResponse.token,
+  ssl: 'require',
+});
+
+However, I also use Drizzle ORM. Drizzle’s defineConfig for drizzle.config.ts (used by Drizzle Kit for migrations) requires static dbCredentials or a static connectionString — it can’t run async code to fetch a token. So I need to:
+
+1. Use static credentials for Drizzle Kit migrations in drizzle.config.ts.
+
+
+2. Use an async token-based connection for runtime database access in the Next.js app.
+
+
+
+For local development, I run PostgreSQL in Docker with a password. I understand that Microsoft Entra ID tokens won’t work locally because my local Postgres doesn’t integrate with Azure AD. So I’ll need a normal username/password locally, and token-based auth in production.
+
+Also, I use .env.production and .env.development to store environment-specific config in Next.js (which automatically loads these based on the build/start mode).
+
+Question:
+How can I structure my configuration so that:
+
+Drizzle Kit migrations still work with static credentials.
+
+My app uses a token-based connection at runtime in production and normal credentials in development.
+
+Environment variables are used properly for both modes.
+
+If possible, what would a connectionString look like when using a token for Postgres?
+
+
+
+---
+
+Do you want me to now also include a ready-to-use final config + runtime DB helper that fits exactly into this prompt? That way you’ll have the complete setup in one place.
+
+
+
 Here’s your question reformulated as a single, self-contained LLM prompt with context and constraints included:
 
 
