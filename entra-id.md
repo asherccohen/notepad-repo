@@ -1,3 +1,77 @@
+Here’s a consolidated prompt you can reuse with any LLM to get a clear, context-aware answer based on everything we discussed:
+
+
+---
+
+Prompt:
+
+I’m building an internal tool for a multinational banking company using Next.js App Router, next-auth, Microsoft Entra ID (Microsoft’s Azure AD successor), Drizzle ORM with Postgres, and @ai-sdk/azure for Azure OpenAI integration.
+
+I need:
+
+1. Authentication
+
+Users should log in via Microsoft SSO (Entra ID provider in next-auth).
+
+I want to skip a manual login page and redirect unauthenticated users straight to Microsoft’s SSO screen.
+
+I want to know if next-auth uses an env var for JWT verification or if with Entra ID it verifies via Entra infrastructure instead.
+
+I also want to understand how having multiple next-auth providers works — whether it shows multiple sign-in options automatically (even if I’m not using next-auth UI components).
+
+
+
+2. Entra ID credentials
+
+How to obtain and configure the client ID, client secret, and issuer URL (now used instead of tenant ID) from the Azure portal.
+
+Whether the Azure client_id and client_secret used in @azure/identity are the same ones used for the Entra ID provider in next-auth.
+
+
+
+3. Database integration (Drizzle ORM)
+
+I want to store and monitor users for auditing and analytics, even though Microsoft SSO could work without a DB.
+
+I’m using Drizzle with Postgres and want a schema for users and accounts tables, and a Drizzle adapter for next-auth so user data is persisted automatically.
+
+I need advice on when a DB is required versus when JWT-only auth is enough.
+
+
+
+4. Azure OpenAI authentication
+
+I’m using createAzure from @ai-sdk/azure (Vercel’s AI SDK) and sometimes pass headers (bearer token), but it still expects an API key.
+
+I want to understand the relationship between next-auth Entra ID login tokens, Azure OpenAI authentication, and @azure/identity.
+
+I want to know how to support both API key and bearer token flows for Azure OpenAI in the same app.
+
+
+
+
+Please explain in detail, using latest package names and latest env var conventions, including:
+
+Step-by-step Entra ID setup in Azure portal
+
+next-auth configuration with the Entra ID provider
+
+Middleware redirect logic for SSO without a login page
+
+Drizzle schema + adapter for next-auth
+
+How to handle Azure OpenAI API auth with both API keys and bearer tokens
+
+How next-auth sessions relate to Azure OpenAI credentials
+
+
+
+---
+
+Do you want me to now refine this prompt so it’s concise but still keeps all the technical depth so you can reuse it in any LLM without losing context? That way you could drop it into ChatGPT or Claude and always get a consistent, complete answer.
+
+
+
 Here’s your conversation distilled into a clear, ready-to-use LLM prompt so another model can directly give you the integration guidance you wanted:
 
 
