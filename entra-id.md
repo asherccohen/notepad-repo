@@ -1,3 +1,29 @@
+Here’s your question reformulated as a single, self-contained LLM prompt with context and constraints included:
+
+
+---
+
+Prompt:
+I’m running a Node.js application inside a Docker container that uses the @azure/identity package to authenticate with Azure. I want to know if I need to install the Azure CLI inside the container.
+
+The application could use DefaultAzureCredential, which can try multiple authentication methods:
+
+AzureCliCredential → Requires the Azure CLI to be installed in the container because it obtains tokens by invoking az. If I use this, I must install Azure CLI (e.g., FROM mcr.microsoft.com/azure-cli or curl -sL https://aka.ms/InstallAzureCLIDeb | bash) and authenticate (e.g., az login). Alternatively, I can mount the .azure directory from my host to the container, but that has security implications.
+
+ManagedIdentityCredential → No Azure CLI required. Works when running in Azure with a system- or user-assigned managed identity (e.g., ACI, AKS, App Service). The container must have the managed identity enabled and permissions assigned.
+
+EnvironmentCredential → No Azure CLI required. I can provide credentials via environment variables (AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET).
+
+
+Given these details, explain whether the Azure CLI is necessary in my Docker container for @azure/identity to work, and outline the available authentication approaches with pros/cons.
+
+
+---
+
+Do you want me to also make an optimized “few-shot” style prompt so future LLMs can answer similar questions with richer technical depth? That way, you could reuse it.
+
+
+
 Here’s a consolidated prompt you can reuse with any LLM to get a clear, context-aware answer based on everything we discussed:
 
 
