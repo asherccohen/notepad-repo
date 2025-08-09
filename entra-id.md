@@ -1,3 +1,42 @@
+Here’s your conversation summarized and reformatted as a single, precise prompt an LLM could use to answer your question:
+
+
+---
+
+Prompt:
+
+I’m using pgAdmin to connect to Azure Database for PostgreSQL.
+I create an Azure AD access token using the Azure CLI with the following command:
+
+az account get-access-token
+
+When I try to connect in pgAdmin, I get the error:
+
+the access token does not have a valid audience claim
+
+I now know this error happens when the token’s aud claim does not match the expected audience for PostgreSQL. Azure Database for PostgreSQL Flexible Server expects the audience:
+
+https://ossrdbms-aad.database.windows.net
+
+This token can be obtained with:
+
+az account get-access-token --resource-type oss-rdbms
+
+In pgAdmin, the token must be pasted into the password field, the authentication type set to Azure AD, and the username must be in the form <aad-user>@<tenant-id>.
+The PostgreSQL server must have Azure AD authentication enabled, and the user must exist with:
+
+CREATE ROLE "<aad-user>" WITH LOGIN;
+GRANT azure_ad_user TO "<aad-user>";
+
+Given this context, explain why my initial approach failed, and provide the correct step-by-step method to connect pgAdmin to Azure Database for PostgreSQL using Azure AD tokens without getting the invalid audience claim error.
+
+
+---
+
+Do you want me to now rewrite this into a compressed one-liner prompt you could paste directly into another LLM?
+
+
+
 Here’s a condensed “LLM-ready” prompt based on everything we discussed:
 
 
