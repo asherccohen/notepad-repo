@@ -1,3 +1,60 @@
+Here’s a condensed, enhanced prompt that captures everything you asked and what we discussed, ready for an LLM to give a precise answer:
+
+
+---
+
+Prompt:
+
+I want to build a simple web scraping CLI in Node.js with TypeScript.
+The CLI should:
+
+1. Accept a Confluence page URL as input.
+
+
+2. Save the page’s main content in HTML format to a file.
+
+
+3. Work when the Confluence REST API is disabled.
+
+
+4. Handle authentication via SSO:
+
+If I have an SSO cookie string (e.g., JSESSIONID=...; othercookie=...), use it to make authenticated HTTP requests.
+
+If I don’t have a cookie, launch Puppeteer, log in manually (or automatically if possible), grab the SSO session cookies, and use them to fetch the page.
+
+
+
+5. Use axios + axios-cookiejar-support + tough-cookie for HTTP requests and cookie handling.
+
+
+6. Use cheerio to parse the HTML and extract #main-content.
+
+
+7. Allow setting the output file path with a CLI option.
+
+
+
+Also:
+
+Show installation commands for required dependencies.
+
+Show complete TypeScript code for both the cookie-based scraping version and the Puppeteer-assisted login version.
+
+Include instructions for extracting cookies manually from the browser and passing them to the CLI.
+
+Include usage examples for both modes.
+
+Mention how to adapt the CSS selector for different Confluence layouts.
+
+
+
+---
+
+Do you want me to also optimize this prompt so it asks for production-ready, reusable code instead of just a minimal example? That way, an LLM would return something you can drop into a project right away.
+
+
+
 Here’s your conversation distilled into a prompt-ready format that an LLM could take and immediately give you an answer:
 
 
