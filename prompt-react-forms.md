@@ -1,3 +1,102 @@
+Here’s a consolidated, LLM-ready prompt based on everything you asked and the solutions we iterated on:
+
+
+---
+
+Prompt:
+I want to design a resilient, scalable, and declarative system to handle complex dependent fields in a web form.
+A field can:
+
+Change visibility (show / hide)
+
+Change enabled state (enable / disable)
+
+Have its dropdown options filtered dynamically based on other fields’ values
+
+Depend on multiple fields (dependsOn: string[])
+
+Have nested dependencies (dependencies of dependencies)
+
+
+I want:
+
+1. A declarative API to define rules as data, not scattered logic.
+
+
+2. Functional style — pure functions, immutability, composability.
+
+
+3. Mathematical structure — model the dependencies as a Directed Acyclic Graph (DAG):
+
+Nodes = fields
+
+Edges = dependencies
+
+Use topological sort to determine evaluation order
+
+Detect and prevent cycles
+
+
+
+4. Boolean logic to define conditions cleanly.
+
+
+5. Dynamic dropdown options that can be static or computed from form state.
+
+
+6. Evaluation function that takes the form values and rules and outputs for each field:
+
+{ visible: boolean; enabled: boolean; options?: Option[] }
+
+
+7. Integration in React (TypeScript) using controlled components.
+
+
+8. Server-side validation possibility using something like Zod to enforce business rules.
+
+
+9. Testing with Playwright for user-facing behavior.
+
+
+
+Here’s an outline of what I’m looking for in the answer:
+
+Type definitions for FieldConfig and Option.
+
+Example fieldConfigs for country → region → city dependencies.
+
+Functions to:
+
+Build the dependency graph
+
+Topologically sort fields
+
+Evaluate field states based on rules and current values
+
+
+React integration example using hooks.
+
+Explanation of why the DAG + functional + declarative approach is resilient and maintainable.
+
+
+The answer should be:
+
+In TypeScript
+
+Using React for the UI example
+
+Written for someone who already understands frontend architecture patterns
+
+Concise but with enough code to be directly implemented
+
+
+
+---
+
+Do you want me to also include our final DAG-based React + TypeScript implementation inside this prompt so it’s fully self-contained for an LLM? That would make it copy-paste ready.
+
+
+
 Sure! Here’s a concise prompt you can use with an LLM to get similar help, including your constraints and the solutions we discussed:
 
 
