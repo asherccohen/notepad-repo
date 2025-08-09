@@ -1,3 +1,40 @@
+Here’s a condensed prompt version of our conversation, with your question and the relevant details already baked in:
+
+
+---
+
+Prompt:
+I’m using TypeScript with Zod in my project. I want to know if there is a way to validate data using an existing JSON Schema instead of rewriting the schema in Zod.
+
+If possible, explain:
+
+Whether Zod supports JSON Schema validation natively.
+
+How to convert a Zod schema to JSON Schema.
+
+How to convert an existing JSON Schema into a Zod schema for runtime validation.
+
+Any tools or libraries available for this conversion (CLI or programmatic).
+
+
+Include known options such as:
+
+Zod’s toJSONSchema() feature (available since Zod 4).
+
+json-schema-to-zod (CLI/runtime converter from JSON Schema to Zod schema code).
+
+@dmitryrechkin/json-schema-to-zod (TypeScript library for converting JSON Schema to Zod schemas at runtime).
+
+
+Focus on solutions that integrate cleanly into a modern TypeScript stack (Node.js, React, Remix/Next.js).
+
+
+---
+
+Do you want me to also make you a version optimized for GitHub Copilot / Cursor AI so it would directly suggest the relevant code?
+
+
+
 Got it. Here’s a detailed prompt incorporating all key points from our discussion:
 
 
